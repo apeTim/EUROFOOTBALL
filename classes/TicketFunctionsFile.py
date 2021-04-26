@@ -22,7 +22,7 @@ class TicketFunctions:
             cursor.close()
         return user_listed_tickets
     
-    def user_needed_tickets(self, context):
+    def user_needed_tickets(self, user_id, context):
         print(context)
         with sqlite3.connect('bot.db') as db_connection:
             cursor = db_connection.cursor()
@@ -31,8 +31,23 @@ class TicketFunctions:
             else:
                 command = f'''SELECT * FROM tickets WHERE match_name = ? AND match_ticket_class = ? AND match_tickets_number >= ?'''
             needed_tickets = cursor.execute( command, (context["match_name"], context["match_ticket_class"], context["match_tickets_number"] ) ).fetchall()
+            new_needed_tickets = []
+            for ticket in needed_tickets:
+                user_id = ticket[1]
+                user_rating = self.get_users_rating(user_id)
+                ticket += (user_rating, )
+                new_needed_tickets.append(ticket)
             cursor.close()
-        return needed_tickets
+        return new_needed_tickets
+    
+    def get_users_rating(self, user_id):
+        with sqlite3.connect('bot.db') as db_connection:
+            cursor = db_connection.cursor()
+            command = f'''SELECT rating, rating_numbers FROM users WHERE user_id = ?'''
+            r = cursor.execute(command, (user_id, )).fetchone()
+            rating = round(r[0] / r[1], 2)
+            cursor.close()
+            return rating
 
 '''
 import sqlite3

@@ -7,27 +7,36 @@ from .UserFunctionsFile import UserFunctions
 
 back_button = [['Назад']]
 
+MATCH_TICKET_CLASSES = [['1', '2', '3'], ['1OV', '2OV', '3OV'], ['VIP']]
+
 class SellerFunctions(UserFunctions):
     def __init__(self, bot):
         super().__init__()
         self.bot = bot
         self.match_functions = MatchFunctions()
         self.ticket_functions = TicketFunctions()
-        self.main_keyboard = ReplyKeyboardMarkup([['Купить', 'Продать'], ['Мои объявления'], ['Мой профиль', 'Оценить пользователя'], ['Тех-поддержка']], one_time_keyboard=False, resize_keyboard=True)
         print('UserFunctions connected')
 
     # Функции Класса
     def match_tickets_sell_type(self, update, context):
-        if not update.message.text.isdigit():
+        if update.message.text == 'Назад':
+            markup = ReplyKeyboardMarkup(MATCH_TICKET_CLASSES + back_button, one_time_keyboard=False, resize_keyboard=True)
+            self.bot.sendMessage(self.chatId(update), "Выберите категорию билета", reply_markup=markup)
+            return 4
+        if (not update.message.text.isdigit()) or (not int(update.message.text) > 0):
             self.notDigitError(update)
             return 5
 
-        markup = ReplyKeyboardMarkup([['По одиночке'], ['По парам']], one_time_keyboard=False, resize_keyboard=True)
+        markup = ReplyKeyboardMarkup([['По одиночке'], ['По парам']] + back_button, one_time_keyboard=False, resize_keyboard=True)
         context.user_data['match_tickets_number'] = update.message.text
         self.bot.sendMessage(self.chatId(update), "Как вы хотите продавать билеты?", reply_markup=markup)
         return 6
         
     def match_ticket_price(self, update, context):
+        if update.message.text == 'Назад':
+            markup = ReplyKeyboardMarkup(back_button, one_time_keyboard=False, resize_keyboard=True)
+            self.bot.sendMessage(self.chatId(update), "Сколько билетов вы хотите продать? (Пришлите только число)", reply_markup=markup)
+            return 5
         if not update.message.text in ['По одиночке', 'По парам']:
             self.notKeyboardShortcutError(update)
             return 6
@@ -38,7 +47,11 @@ class SellerFunctions(UserFunctions):
         return 7
     
     def match_ticket_description(self, update, context):
-        if not update.message.text.replace(" ", "").isdigit():
+        if update.message.text == 'Назад':
+            markup = ReplyKeyboardMarkup([['По одиночке'], ['По парам']] + back_button, one_time_keyboard=False, resize_keyboard=True)
+            self.bot.sendMessage(self.chatId(update), "Как вы хотите продавать билеты?", reply_markup=markup)
+            return 6
+        if (not update.message.text.replace(" ", "").isdigit()) or (not int(update.message.text.replace(" ", "")) > 0):
             self.notDigitError(update)
             return 7
         
@@ -48,6 +61,10 @@ class SellerFunctions(UserFunctions):
         return 8
 
     def ticket_review(self, update, context):
+        if update.message.text == 'Назад':
+            markup = ReplyKeyboardMarkup(back_button, one_time_keyboard=False, resize_keyboard=True)
+            self.bot.sendMessage(self.chatId(update), "Укажите цену за один билет (Пришлите только число)", reply_markup=markup)
+            return 7
         context.user_data['match_ticket_description'] = update.message.text
         markup = ReplyKeyboardMarkup([['Подтвердить']] + back_button, one_time_keyboard=False, resize_keyboard=True)
         ticket_review = f'''Стадия: {context.user_data["match_stage"]}\nДата/Группа: {context.user_data["match_group_or_date"]}\nКатегория: {context.user_data["match_ticket_class"]}\nВ наличии: {context.user_data["match_tickets_number"]}\nТип продажи: {context.user_data["match_tickets_sell_type"]}\nЦена за шт.: {context.user_data["match_ticket_price"]}'''
@@ -55,9 +72,17 @@ class SellerFunctions(UserFunctions):
         return 9
 
     def ticket_confirm(self, update, context):
-        result = self.ticket_functions.create_ticket(context.user_data, update.message.chat_id, str(update.message.from_user.username))
-        self.bot.sendMessage(self.chatId(update), "Объявление создано", reply_markup=self.main_keyboard)
-        return ConversationHandler.END
+        if update.message.text == 'Назад':
+            markup = ReplyKeyboardMarkup(back_button, one_time_keyboard=False, resize_keyboard=True)
+            self.bot.sendMessage(self.chatId(update), "В объявлении укажите информацию о предложении. Желательно указать:\n-бумажный или электронный билет;\n-готовность встретится лично;\n-готовность к торгу;\n-форма оплаты(нал/бн/крипта);", reply_markup=markup)
+            return 8
+        if update.message.text == 'Подтвердить':
+            result = self.ticket_functions.create_ticket(context.user_data, update.message.chat_id, str(update.message.from_user.username))
+            self.bot.sendMessage(self.chatId(update), "Объявление создано", reply_markup=self.main_keyboard)
+            return ConversationHandler.END
+        else:
+            self.bot.sendMessage(self.chatId(update), "Выберите либо 'Подтвердить', либо 'Назад'")
+            return 9
 
     def send_user_listed_tickets(self, update, context):
         print(context)
@@ -76,7 +101,8 @@ class SellerFunctions(UserFunctions):
             ]
             ]
             markup = InlineKeyboardMarkup(keyboard)
-        r = self.bot.sendMessage(self.chatId(update), f'''Стадия: {ticket[3]}\nДата/Группа: {ticket[4]}\nКатегория: {ticket[5]}\nВ наличии: {ticket[6]}\nМинимум к продаже: {ticket[7]}\nЦена за шт.: {ticket[8]}''', reply_markup=markup)
+        print(ticket)
+        r = self.bot.sendMessage(self.chatId(update), f'''<b>Стадия:</b> {ticket[3]}\n<b>Дата/Группа:</b> {ticket[4]}\n<b>Матч:</b> {ticket[5]}\n<b>Категория билета:</b> {ticket[6]}\n<b>Кол-во билетов:</b> {ticket[7]}\n<b>Тип продажи:</b> {ticket[8]}\n<b>Цена за шт.:</b> {ticket[9]}\n\n<b>Описание:</b>\n{ticket[10]}''', reply_markup=markup, parse_mode='HTML')
         context.user_data["current_message_id"] = r.message_id
         return 1
     
@@ -99,7 +125,7 @@ class SellerFunctions(UserFunctions):
                 ]
                 ]
             markup = InlineKeyboardMarkup(keyboard)
-            r = self.bot.sendMessage(update.callback_query.from_user.id, f'''Стадия: {ticket[3]}\nДата/Группа: {ticket[4]}\nКатегория: {ticket[5]}\nВ наличии: {ticket[6]}\nМинимум к продаже: {ticket[7]}\nЦена за шт.: {ticket[8]}''', reply_markup=markup)
+            r = self.bot.sendMessage(update.callback_query.from_user.id, f'''<b>Стадия:</b> {ticket[3]}\n<b>Дата/Группа:</b> {ticket[4]}\n<b>Матч:</b> {ticket[5]}\n<b>Категория билета:</b> {ticket[6]}\n<b>Кол-во билетов:</b> {ticket[7]}\n<b>Тип продажи:</b> {ticket[8]}\n<b>Цена за шт.:</b> {ticket[9]}\n\n<b>Описание:</b>\n{ticket[10]}''', reply_markup=markup, parse_mode='HTML')
             context.user_data["current_message_id"] = r.message_id
         if action == 'back':
             ticket = context.user_data["listed_tickets"][int(ticket_id) - 1]
@@ -117,7 +143,7 @@ class SellerFunctions(UserFunctions):
                 ]
                 ]
             markup = InlineKeyboardMarkup(keyboard)
-            r = self.bot.sendMessage(update.callback_query.from_user.id, f'''Стадия: {ticket[3]}\nДата/Группа: {ticket[4]}\nКатегория: {ticket[5]}\nВ наличии: {ticket[6]}\nМинимум к продаже: {ticket[7]}\nЦена за шт.: {ticket[8]}''', reply_markup=markup)
+            r = self.bot.sendMessage(update.callback_query.from_user.id, f'''<b>Стадия:</b> {ticket[3]}\n<b>Дата/Группа:</b> {ticket[4]}\n<b>Матч:</b> {ticket[5]}\n<b>Категория билета:</b> {ticket[6]}\n<b>Кол-во билетов:</b> {ticket[7]}\n<b>Тип продажи:</b> {ticket[8]}\n<b>Цена за шт.:</b> {ticket[9]}\n\n<b>Описание:</b>\n{ticket[10]}''', reply_markup=markup, parse_mode='HTML')
             context.user_data["current_message_id"] = r.message_id
         return 1
 

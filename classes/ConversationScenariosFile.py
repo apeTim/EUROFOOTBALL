@@ -5,10 +5,12 @@ from .SellerFunctionsFile import SellerFunctions
 from .BotMainFunctionsFile import BotMainFunctions
 from .TicketFunctionsFile import TicketFunctions
 from .BuyerFunctionsFile import BuyerFunctions
+from .UserFunctionsFile import UserFunctions
 
 class ConversationScenarios:
     def __init__(self, bot):
         self.bot = bot
+        self.user_functions = UserFunctions(bot=bot)
         self.seller_functions = SellerFunctions(bot)
         self.buyer_functions = BuyerFunctions(bot)
         self.bot_functions = BotMainFunctions()
@@ -28,7 +30,7 @@ class ConversationScenarios:
                 8: [MessageHandler(Filters.text, self.seller_functions.ticket_review, pass_user_data=True)],
                 9: [MessageHandler(Filters.text, self.seller_functions.ticket_confirm, pass_user_data=True)],
             },
-            fallbacks=[CommandHandler('stop', self.bot_functions.stop_conversation)]
+            fallbacks=[MessageHandler(Filters.regex('В главное меню'), self.bot_functions.stop_conversation)]
         )
         return seller_conversation_scenario
 
@@ -56,3 +58,15 @@ class ConversationScenarios:
             fallbacks=[MessageHandler(Filters.text, self.seller_functions.stop_callback_conversation)]
         )
         return user_listings_scenario
+
+    def rate_user_scenario(self):
+        rate_user_scenario = ConversationHandler(
+            entry_points=[MessageHandler(Filters.regex('Оценить пользователя'), self.user_functions.rate_user_nickname, pass_user_data=True)],
+            states={
+                1: [MessageHandler(Filters.text, self.user_functions.rate_user_relationships, pass_user_data=True)],
+                2: [MessageHandler(Filters.text, self.user_functions.rate_user_rating, pass_user_data=True)],
+                3: [MessageHandler(Filters.text, self.user_functions.rate_user_end, pass_user_data=True)]
+            },
+            fallbacks=[MessageHandler(Filters.regex('В главное меню'), self.user_functions.stop_conversation)]
+        )
+        return rate_user_scenario
