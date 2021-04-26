@@ -5,7 +5,7 @@ from .MatchFunctionsFile import MatchFunctions
 from .TicketFunctionsFile import TicketFunctions
 from .UserFunctionsFile import UserFunctions
 
-back_button = [['Назад']]
+back_button = [['⬅️Назад']]
 
 MATCH_TICKET_CLASSES = [['1', '2', '3'], ['1OV', '2OV', '3OV'], ['VIP']]
 
@@ -19,7 +19,7 @@ class SellerFunctions(UserFunctions):
 
     # Функции Класса
     def match_tickets_sell_type(self, update, context):
-        if update.message.text == 'Назад':
+        if update.message.text == '⬅️Назад':
             markup = ReplyKeyboardMarkup(MATCH_TICKET_CLASSES + back_button, one_time_keyboard=False, resize_keyboard=True)
             self.bot.sendMessage(self.chatId(update), "Выберите категорию билета", reply_markup=markup)
             return 4
@@ -33,7 +33,7 @@ class SellerFunctions(UserFunctions):
         return 6
         
     def match_ticket_price(self, update, context):
-        if update.message.text == 'Назад':
+        if update.message.text == '⬅️Назад':
             markup = ReplyKeyboardMarkup(back_button, one_time_keyboard=False, resize_keyboard=True)
             self.bot.sendMessage(self.chatId(update), "Сколько билетов вы хотите продать? (Пришлите только число)", reply_markup=markup)
             return 5
@@ -47,7 +47,7 @@ class SellerFunctions(UserFunctions):
         return 7
     
     def match_ticket_description(self, update, context):
-        if update.message.text == 'Назад':
+        if update.message.text == '⬅️Назад':
             markup = ReplyKeyboardMarkup([['По одиночке'], ['По парам']] + back_button, one_time_keyboard=False, resize_keyboard=True)
             self.bot.sendMessage(self.chatId(update), "Как вы хотите продавать билеты?", reply_markup=markup)
             return 6
@@ -61,7 +61,7 @@ class SellerFunctions(UserFunctions):
         return 8
 
     def ticket_review(self, update, context):
-        if update.message.text == 'Назад':
+        if update.message.text == '⬅️Назад':
             markup = ReplyKeyboardMarkup(back_button, one_time_keyboard=False, resize_keyboard=True)
             self.bot.sendMessage(self.chatId(update), "Укажите цену за один билет (Пришлите только число)", reply_markup=markup)
             return 7
@@ -72,7 +72,7 @@ class SellerFunctions(UserFunctions):
         return 9
 
     def ticket_confirm(self, update, context):
-        if update.message.text == 'Назад':
+        if update.message.text == '⬅️Назад':
             markup = ReplyKeyboardMarkup(back_button, one_time_keyboard=False, resize_keyboard=True)
             self.bot.sendMessage(self.chatId(update), "В объявлении укажите информацию о предложении. Желательно указать:\n-бумажный или электронный билет;\n-готовность встретится лично;\n-готовность к торгу;\n-форма оплаты(нал/бн/крипта);", reply_markup=markup)
             return 8
@@ -81,7 +81,7 @@ class SellerFunctions(UserFunctions):
             self.bot.sendMessage(self.chatId(update), "Объявление создано", reply_markup=self.main_keyboard)
             return ConversationHandler.END
         else:
-            self.bot.sendMessage(self.chatId(update), "Выберите либо 'Подтвердить', либо 'Назад'")
+            self.bot.sendMessage(self.chatId(update), "Выберите либо 'Подтвердить', либо '⬅️Назад'")
             return 9
 
     def send_user_listed_tickets(self, update, context):
@@ -114,13 +114,13 @@ class SellerFunctions(UserFunctions):
             if int(ticket_id) + 1 == len(context.user_data["listed_tickets"]) - 1:
                 keyboard = [
                 [
-                    InlineKeyboardButton("Назад", callback_data=f'back:{int(ticket_id) + 1}'),
+                    InlineKeyboardButton("⬅️Назад", callback_data=f'back:{int(ticket_id) + 1}'),
                 ]
                 ]
             else:
                 keyboard = [
                 [
-                    InlineKeyboardButton("Назад", callback_data=f'back:{int(ticket_id) + 1}'),
+                    InlineKeyboardButton("⬅️Назад", callback_data=f'back:{int(ticket_id) + 1}'),
                     InlineKeyboardButton("Вперёд", callback_data=f'forward:{int(ticket_id) + 1}'),
                 ]
                 ]
@@ -138,7 +138,7 @@ class SellerFunctions(UserFunctions):
             else:
                 keyboard = [
                 [
-                    InlineKeyboardButton("Назад", callback_data=f'back:{int(ticket_id) - 1}'),
+                    InlineKeyboardButton("⬅️Назад", callback_data=f'back:{int(ticket_id) - 1}'),
                     InlineKeyboardButton("Вперёд", callback_data=f'forward:{int(ticket_id) - 1}'),
                 ]
                 ]

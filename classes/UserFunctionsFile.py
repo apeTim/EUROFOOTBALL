@@ -20,19 +20,19 @@ MATCH_GROUPS_OR_DATES = ['A', 'B', 'C', 'D', 'E', 'F', '26.06.21', '27.06.21', '
 
 MATCH_TICKET_CLASSES = [['1', '2', '3'], ['1OV', '2OV', '3OV'], ['VIP']]
 
-back_button = [['Назад']]
+back_button = [['⬅️Назад']]
 
-menu_button = [['В главное меню']]
+menu_button = [['🏠В главное меню']]
 
-tomenu_button = [['В главное меню']]
+tomenu_button = [['🏠В главное меню']]
 
 class UserFunctions():
     def __init__(self, bot=''):
         if bot:
             self.bot = bot
-        self.tomenu_keyboard = ReplyKeyboardMarkup([['В главное меню']], one_time_keyboard=False, resize_keyboard=True)
+        self.tomenu_keyboard = ReplyKeyboardMarkup([['🏠В главное меню']], one_time_keyboard=False, resize_keyboard=True)
         self.bot_functions = BotMainFunctions()
-        self.main_keyboard = ReplyKeyboardMarkup([['Купить', 'Продать'], ['Мои объявления'], ['Мой профиль', 'Оценить пользователя'], ['Тех-поддержка']], one_time_keyboard=False, resize_keyboard=True)
+        self.main_keyboard = ReplyKeyboardMarkup([['🛒Купить', '💰Продать'], ['📜Мои объявления'], ['👤Мой профиль', '🌟Оценить пользователя'], ['✉️Тех-поддержка']], one_time_keyboard=False, resize_keyboard=True)
         pass
 
     # Полезные методы
@@ -56,7 +56,7 @@ class UserFunctions():
                 rating = 'не определён'
             else:
                 rating = round(r[4] / r[5], 2)
-            self.bot.sendMessage(self.chatId(update), f"{r[2]} {r[3]}\n\nРейтинг: {rating}", reply_markup=self.main_keyboard)
+            self.bot.sendMessage(self.chatId(update), f"{r[2]} {r[3]}\n\n🌟Рейтинг: {rating}", reply_markup=self.main_keyboard)
             cursor.close()
     
     def rate_user_nickname(self, update, context):
@@ -64,7 +64,7 @@ class UserFunctions():
         return 1
 
     def rate_user_relationships(self, update, context):
-        if update.message.text == 'В главное меню':
+        if update.message.text == '🏠В главное меню':
             self.bot.sendMessage(self.chatId(update), "Главное меню", reply_markup=self.main_keyboard)
             return ConversationHandler.END
         if not self.bot_functions.check_user_in_db_by_nickname(update.message.text):
@@ -76,14 +76,14 @@ class UserFunctions():
             return 2
         
     def rate_user_rating(self, update, context):
-        if update.message.text == 'Назад':
+        if update.message.text == '⬅️Назад':
             self.bot.sendMessage(self.chatId(update), "Введите никнем пользователя, которого хотите оценить", reply_markup=self.tomenu_keyboard)
             return 1
         self.bot.sendMessage(self.chatId(update), "Оцените пользователя от -10 до +10", reply_markup=ReplyKeyboardMarkup(back_button, resize_keyboard=True))
         return 3
     
     def rate_user_end(self, update, context):
-        if update.message.text == 'Назад':
+        if update.message.text == '⬅️Назад':
             markup = ReplyKeyboardMarkup([['Знаком лично'], ['Имел дело в интернете'], ['Знакомые имели дело']] + back_button, resize_keyboard=True)
             self.bot.sendMessage(self.chatId(update), "В каких отношениях вы с пользователем", reply_markup=markup)
             return 2
@@ -114,7 +114,7 @@ class UserFunctions():
         return 1
 
     def choose_match_date(self, update, context):
-        if update.message.text == 'В главное меню':
+        if update.message.text == '🏠В главное меню':
             self.bot.sendMessage(self.chatId(update), "Главное меню", reply_markup=self.main_keyboard)
             return ConversationHandler.END
         if not update.message.text in MATCH_DATA:
@@ -130,7 +130,7 @@ class UserFunctions():
         return 2
 
     def choose_match_name(self, update, context):
-        if update.message.text == 'Назад':
+        if update.message.text == '⬅️Назад':
             markup = ReplyKeyboardMarkup([[x] for x in MATCH_DATA] + tomenu_button, one_time_keyboard=False, resize_keyboard=True)
             self.bot.sendMessage(self.chatId(update), "Выберите стадию", reply_markup=markup)
             return 1
@@ -147,7 +147,7 @@ class UserFunctions():
         return 3
     
     def choose_match_ticket_class(self, update, context):
-        if update.message.text == 'Назад':
+        if update.message.text == '⬅️Назад':
             markup = ReplyKeyboardMarkup(MATCH_DATA[context.user_data["match_stage"]] + back_button, one_time_keyboard=False, resize_keyboard=True)
             if context.user_data["match_stage"] == 'Групповой этап':
                 self.bot.sendMessage(self.chatId(update), "Выберите группу", reply_markup=markup)
@@ -165,7 +165,7 @@ class UserFunctions():
         return 4
 
     def choose_match_tickets_number(self, update, context):
-        if update.message.text == 'Назад':
+        if update.message.text == '⬅️Назад':
             markup = ReplyKeyboardMarkup([[x[0]] for x in         context.user_data['active_matches_to_show']] + back_button, one_time_keyboard=False, resize_keyboard=True)
             self.bot.sendMessage(self.chatId(update), "Выберите матч", reply_markup=markup)
             return 3

@@ -5,9 +5,9 @@ from .MatchFunctionsFile import MatchFunctions
 from .TicketFunctionsFile import TicketFunctions
 from .UserFunctionsFile import UserFunctions
 
-back_button = [['Назад']]
+back_button = [['⬅️Назад']]
 
-menu_button = [['В главное меню']]
+menu_button = [['🏠В главное меню']]
 
 MATCH_TICKET_CLASSES = [['1', '2', '3'], ['1OV', '2OV', '3OV'], ['VIP']]
 
@@ -20,7 +20,7 @@ class BuyerFunctions(UserFunctions):
         print('UserFunctions connected')
         
     def send_needed_tickets(self, update, context):
-        if update.message.text == 'Назад':
+        if update.message.text == '⬅️Назад':
             markup = ReplyKeyboardMarkup(MATCH_TICKET_CLASSES + back_button, one_time_keyboard=False, resize_keyboard=True)
             self.bot.sendMessage(self.chatId(update), "Выберите категорию билета", reply_markup=markup)
             return 4
@@ -57,13 +57,13 @@ class BuyerFunctions(UserFunctions):
             if int(ticket_id) + 1 == len(context.user_data["needed_tickets"]) - 1:
                 keyboard = [
                 [
-                    InlineKeyboardButton("Назад", callback_data=f'back:{int(ticket_id) + 1}'),
+                    InlineKeyboardButton("⬅️Назад", callback_data=f'back:{int(ticket_id) + 1}'),
                 ]
                 ]
             else:
                 keyboard = [
                 [
-                    InlineKeyboardButton("Назад", callback_data=f'back:{int(ticket_id) + 1}'),
+                    InlineKeyboardButton("⬅️Назад", callback_data=f'back:{int(ticket_id) + 1}'),
                     InlineKeyboardButton("Вперёд", callback_data=f'forward:{int(ticket_id) + 1}'),
                 ]
                 ]
@@ -81,7 +81,7 @@ class BuyerFunctions(UserFunctions):
             else:
                 keyboard = [
                 [
-                    InlineKeyboardButton("Назад", callback_data=f'back:{int(ticket_id) - 1}'),
+                    InlineKeyboardButton("⬅️Назад", callback_data=f'back:{int(ticket_id) - 1}'),
                     InlineKeyboardButton("Вперёд", callback_data=f'forward:{int(ticket_id) - 1}'),
                 ]
                 ]
@@ -98,13 +98,13 @@ class BuyerFunctions(UserFunctions):
             if int(ticket_id) + 1 == len(context.user_data["needed_tickets"]) - 1:
                 keyboard = [
                 [
-                    InlineKeyboardButton("Назад", callback_data=f'back:{int(ticket_id) + 1}'),
+                    InlineKeyboardButton("⬅️Назад", callback_data=f'back:{int(ticket_id) + 1}'),
                 ]
                 ]
             else:
                 keyboard = [
                 [
-                    InlineKeyboardButton("Назад", callback_data=f'back:{int(ticket_id) + 1}'),
+                    InlineKeyboardButton("⬅️Назад", callback_data=f'back:{int(ticket_id) + 1}'),
                     InlineKeyboardButton("Вперёд", callback_data=f'forward:{int(ticket_id) + 1}'),
                 ]
                 ]
@@ -122,7 +122,7 @@ class BuyerFunctions(UserFunctions):
             else:
                 keyboard = [
                 [
-                    InlineKeyboardButton("Назад", callback_data=f'back:{int(ticket_id) - 1}'),
+                    InlineKeyboardButton("⬅️Назад", callback_data=f'back:{int(ticket_id) - 1}'),
                     InlineKeyboardButton("Вперёд", callback_data=f'forward:{int(ticket_id) - 1}'),
                 ]
                 ]

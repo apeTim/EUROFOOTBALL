@@ -4,10 +4,13 @@ import sqlite3
 
 class BotMainFunctions:
     def __init__(self):
-        self.main_keyboard = ReplyKeyboardMarkup([['Купить', 'Продать'], ['Мои объявления'], ['Мой профиль', 'Оценить пользователя'], ['Тех-поддержка']], one_time_keyboard=False, resize_keyboard=True)
+        self.main_keyboard = ReplyKeyboardMarkup([['🛒Купить', '💰Продать'], ['📜Мои объявления'], ['👤Мой профиль', '🌟Оценить пользователя'], ['✉️Тех-поддержка']], one_time_keyboard=False, resize_keyboard=True)
 
     def any_text(self, update, context):
         update.message.reply_text("Для управления используй клавиатуру!", reply_markup=self.main_keyboard)
+    
+    def send_contacts(self, update, context):
+        update.message.reply_text("Тех-поддержка: @tim_vaulin (с 10:00 до 24:00 по мск)", reply_markup=self.main_keyboard)
 
     def start_command(self, update, context):
         with sqlite3.connect('bot.db') as db_connection:
