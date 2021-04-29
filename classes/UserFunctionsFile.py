@@ -26,6 +26,12 @@ menu_button = [['🏠В главное меню']]
 
 tomenu_button = [['🏠В главное меню']]
 
+rating_coefs = {
+    'Знаком лично': 2,
+    'Имел дело в интернете': 1.5,
+    'Знакомые имели дело': 1
+}
+
 class UserFunctions():
     def __init__(self, bot=''):
         if bot:
@@ -67,7 +73,17 @@ class UserFunctions():
         if update.message.text == '🏠В главное меню':
             self.bot.sendMessage(self.chatId(update), "Главное меню", reply_markup=self.main_keyboard)
             return ConversationHandler.END
-        if not self.bot_functions.check_user_in_db_by_nickname(update.message.text):
+        if update.message.text.replace('@', '').lower() == update.message.from_user.username.lower():
+            self.bot.sendMessage(self.chatId(update), "Нельзя оценить самого себя", reply_markup=self.tomenu_keyboard)
+            return 1
+        existing_user = self.bot_functions.check_user_in_db_by_nickname(update.message.text.replace('@', ''))
+        print(existing_user[6])
+        rated_users = [int(x) for x in list(existing_user[6])]
+        context.user_data["rating_rated_users"] = rated_users
+        if self.chatId(update) in rated_users:
+            self.bot.sendMessage(self.chatId(update), "Вы уже оценивали этого пользователя", reply_markup=self.tomenu_keyboard)
+            return 1
+        if not existing_user:
             self.bot.sendMessage(self.chatId(update), "Такого пользователя нет в нашей системе")
         else:
             context.user_data["rating_nikcname"] = update.message.text
@@ -79,6 +95,11 @@ class UserFunctions():
         if update.message.text == '⬅️Назад':
             self.bot.sendMessage(self.chatId(update), "Введите никнем пользователя, которого хотите оценить", reply_markup=self.tomenu_keyboard)
             return 1
+        if update.message.text not in rating_coefs:
+            self.notKeyboardShortcutError(update)
+            return 1
+
+        context.user_data["rating_relations"] = update.message.text
         self.bot.sendMessage(self.chatId(update), "Оцените пользователя от -10 до +10", reply_markup=ReplyKeyboardMarkup(back_button, resize_keyboard=True))
         return 3
     
@@ -96,10 +117,10 @@ class UserFunctions():
         with sqlite3.connect('bot.db') as db_connection:
             cursor = db_connection.cursor()
             if update.message.text[0] == '+':
-                command = f'''UPDATE users SET rating = rating + ?, rating_numbers = rating_numbers + 1 WHERE user_nickname = ?'''
+                command = f'''UPDATE users SET rating = rating + ?, rating_numbers = rating_numbers + 1, rated_users = ? WHERE user_nickname = ?'''
             else:
-                command = f'''UPDATE users SET rating = rating - ?, rating_numbers = rating_numbers + 1 WHERE user_nickname = ?'''
-            cursor.execute(command, (update.message.text.replace('+', '').replace('-', ''), context.user_data["rating_nikcname"]))
+                command = f'''UPDATE users SET rating = rating - ?, rating_numbers = rating_numbers + 1, rated_users = ? WHERE user_nickname = ?'''
+            cursor.execute(command, (int(update.message.text.replace('+', '').replace('-', '')) * rating_coefs[context.user_data["rating_relations"]], context.user_data["rating_nikcname"], str(context.user_data["rating_rated_users"].append(self.chatId(update)))))
             db_connection.commit()
             cursor.close()
         self.bot.sendMessage(self.chatId(update), "Спасибо за оценку!", reply_markup=self.main_keyboard)

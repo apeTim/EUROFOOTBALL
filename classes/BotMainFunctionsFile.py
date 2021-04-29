@@ -18,8 +18,8 @@ class BotMainFunctions:
             if self.check_user_in_db_by_id(update, context):
                  update.message.reply_text("Привет! Я создан, чтобы облегчить покупку/продажу билетов на Евро2020", reply_markup=self.main_keyboard)
                  return
-            command = f'''INSERT INTO users (user_id, user_nickname, user_firstname, user_lastname, rating, rating_numbers) VALUES (?, ?, ?, ?, ?, 0)'''
-            cursor.execute(command, (update.message.chat_id, update.message.from_user.username, update.message.from_user.first_name, update.message.from_user.last_name, 0))
+            command = f'''INSERT INTO users (user_id, user_nickname, user_firstname, user_lastname, rating, rating_numbers, rated_users) VALUES (?, ?, ?, ?, ?, 0, "[]")'''
+            cursor.execute(command, (update.message.chat_id, update.message.from_user.username.lower(), update.message.from_user.first_name, update.message.from_user.last_name, 0))
             db_connection.commit()
             update.message.reply_text("Привет! Я создан, чтобы облегчить покупку/продажу билетов на Евро2020", reply_markup=self.main_keyboard)
             cursor.close()
@@ -37,10 +37,8 @@ class BotMainFunctions:
         with sqlite3.connect('bot.db') as db_connection:
             cursor = db_connection.cursor()
             command = f'''SELECT * FROM users WHERE user_nickname = ?'''
-            r = cursor.execute( command, (nickname,) ).fetchall()
-            if len(r) > 0:
-                return True
-            return False
+            r = cursor.execute( command, (nickname.lower(),) ).fetchone()
+            return r
 
     def stop_conversation(self, update, context):
         return ConversationHandler.END 
