@@ -45,7 +45,10 @@ class TicketFunctions:
             cursor = db_connection.cursor()
             command = f'''SELECT rating, rating_numbers FROM users WHERE user_id = ?'''
             r = cursor.execute(command, (user_id, )).fetchone()
-            rating = round(r[0] / r[1], 2)
+            if r[1] == 0:
+                rating = 'не определён'
+            else:
+                rating = round(r[0] / r[1], 2)
             cursor.close()
             return rating
 
