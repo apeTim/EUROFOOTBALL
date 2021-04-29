@@ -156,6 +156,14 @@ class UserFunctions():
             self.notKeyboardShortcutError(update)
             return 1
 
+        if update.message.text == 'Финал':
+            context.user_data['match_stage'] = update.message.text
+            context.user_data['match_group_or_date'] = '11.07.21'
+            context.user_data['match_name'] = 'ФИНАЛ'
+            markup = ReplyKeyboardMarkup(MATCH_TICKET_CLASSES + back_button, one_time_keyboard=False, resize_keyboard=True)
+            self.bot.sendMessage(self.chatId(update), "Выберите категорию билета", reply_markup=markup)
+            return 4
+        
         context.user_data['match_stage'] = update.message.text
         markup = ReplyKeyboardMarkup(MATCH_DATA[update.message.text] + back_button, one_time_keyboard=False, resize_keyboard=True)
         if update.message.text == 'Групповой этап':
@@ -201,6 +209,11 @@ class UserFunctions():
 
     def choose_match_tickets_number(self, update, context):
         if update.message.text == '⬅️Назад':
+            if context.user_data['match_stage'] == 'Финал':
+                markup = ReplyKeyboardMarkup([[x] for x in MATCH_DATA] + tomenu_button, one_time_keyboard=False, resize_keyboard=True)
+                self.bot.sendMessage(self.chatId(update), "Выберите стадию", reply_markup=markup)
+                return 1
+
             markup = ReplyKeyboardMarkup([[x[0]] for x in         context.user_data['active_matches_to_show']] + back_button, one_time_keyboard=False, resize_keyboard=True)
             self.bot.sendMessage(self.chatId(update), "Выберите матч", reply_markup=markup)
             return 3
