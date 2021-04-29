@@ -5,6 +5,7 @@ from .MatchFunctionsFile import MatchFunctions
 from .TicketFunctionsFile import TicketFunctions
 from .BotMainFunctionsFile import BotMainFunctions
 import sqlite3
+import json
 
 QUESTIONS = ["Выберите стадию", "Выберите группу/дату", "Выберите матч", "Выберите категорию билета", "Сколько билетов вы хотите продать? (Пришлите только число)", "Укажите минимальное количество билетов к продаже (Пришлите только число)", "Укажите цену за один билет (Пришлите только число)", "В объявлении укажите информацию о предложении. Желательно указать:\n-бумажный или электронный билет;\n-готовность встретится лично;\n-готовность к торгу;\n-форма оплаты(нал/бн/крипта);" ]
 
@@ -77,18 +78,18 @@ class UserFunctions():
             self.bot.sendMessage(self.chatId(update), "Нельзя оценить самого себя", reply_markup=self.tomenu_keyboard)
             return 1
         existing_user = self.bot_functions.check_user_in_db_by_nickname(update.message.text.replace('@', ''))
-        print(existing_user[6])
-        rated_users = [int(x) for x in list(existing_user[6])]
-        context.user_data["rating_rated_users"] = rated_users
-        if self.chatId(update) in rated_users:
-            self.bot.sendMessage(self.chatId(update), "Вы уже оценивали этого пользователя", reply_markup=self.tomenu_keyboard)
-            return 1
         if not existing_user:
             self.bot.sendMessage(self.chatId(update), "Такого пользователя нет в нашей системе")
+            return 1
         else:
+            rated_users = json.loads(existing_user[6])
+            context.user_data["rating_rated_users"] = rated_users
             context.user_data["rating_nikcname"] = update.message.text
             markup = ReplyKeyboardMarkup([['Знаком лично'], ['Имел дело в интернете'], ['Знакомые имели дело']] + back_button, resize_keyboard=True)
-            self.bot.sendMessage(self.chatId(update), "В каких отношениях вы с пользователем", reply_markup=markup)
+            if str(self.chatId(update)) in rated_users:
+                self.bot.sendMessage(self.chatId(update), "В каких отношениях вы с пользователем?\n\nP.S: Вы уже оценивали данного пользователя, поэтому ваш голос будет перезаписан", reply_markup=markup)
+            else:
+                self.bot.sendMessage(self.chatId(update), "В каких отношениях вы с пользователем?", reply_markup=markup)
             return 2
         
     def rate_user_rating(self, update, context):
@@ -104,27 +105,40 @@ class UserFunctions():
         return 3
     
     def rate_user_end(self, update, context):
+        vote_number = update.message.text.replace('+', '').replace('-', '')
         if update.message.text == '⬅️Назад':
             markup = ReplyKeyboardMarkup([['Знаком лично'], ['Имел дело в интернете'], ['Знакомые имели дело']] + back_button, resize_keyboard=True)
             self.bot.sendMessage(self.chatId(update), "В каких отношениях вы с пользователем", reply_markup=markup)
             return 2
-        if not update.message.text.replace('+', '').replace('-', '').isdigit():
+        if not vote_number.isdigit():
             self.bot.sendMessage(self.chatId(update), "Введите число с префиксом (либо +, либо -)")
             return 3
-        if not (int(update.message.text.replace('+', '').replace('-', '')) <= 10 and int(update.message.text.replace('+', '').replace('-', '')) >= 0):
+        if not (update.message.text[0] == '+' or update.message.text[0] == '-') or not (int(vote_number) <= 10 and int(vote_number) >= 0):
             self.bot.sendMessage(self.chatId(update), "Минимальная оценка - -10\nМаксимальная оценка - +10")
             return 3
         with sqlite3.connect('bot.db') as db_connection:
             cursor = db_connection.cursor()
-            if update.message.text[0] == '+':
-                command = f'''UPDATE users SET rating = rating + ?, rating_numbers = rating_numbers + 1, rated_users = ? WHERE user_nickname = ?'''
+            if str(self.chatId(update)) in context.user_data["rating_rated_users"]:
+                prev_dict = context.user_data["rating_rated_users"]
+                if prev_dict[str(self.chatId(update))][0] == '-':
+                    delete_prev_number = "+" + prev_dict[str(self.chatId(update))][1:]
+                else:
+                    delete_prev_number = "-" + prev_dict[str(self.chatId(update))][1:]
+                print("delete_prev_number", delete_prev_number)
+                calulate_addition_to_rating = str(eval(f"{delete_prev_number} {update.message.text[0] + (str(int(vote_number) * rating_coefs[context.user_data['rating_relations']]))}"))
+                if calulate_addition_to_rating[0] != '-':
+                    calulate_addition_to_rating = "+ " + calulate_addition_to_rating
+                command = f'''UPDATE users SET rating = rating {calulate_addition_to_rating}, rated_users = ? WHERE user_nickname = ?'''
+                prev_dict[str(self.chatId(update))] = update.message.text[0] + str(int(vote_number) * rating_coefs[context.user_data["rating_relations"]])
+                r = cursor.execute(command, ( json.dumps(prev_dict), context.user_data["rating_nikcname"] ) )
             else:
-                command = f'''UPDATE users SET rating = rating - ?, rating_numbers = rating_numbers + 1, rated_users = ? WHERE user_nickname = ?'''
-            cursor.execute(command, (int(update.message.text.replace('+', '').replace('-', '')) * rating_coefs[context.user_data["rating_relations"]], context.user_data["rating_nikcname"], str(context.user_data["rating_rated_users"].append(self.chatId(update)))))
+                command = f'''UPDATE users SET rating = rating {update.message.text[0]} {str(int(vote_number) * rating_coefs[context.user_data["rating_relations"]])}, rating_numbers = rating_numbers + 1, rated_users = ? WHERE user_nickname = ?'''
+                context.user_data["rating_rated_users"][self.chatId(update)] = update.message.text
+                r = cursor.execute(command, ( json.dumps(context.user_data["rating_rated_users"]), context.user_data["rating_nikcname"] ) )
             db_connection.commit()
             cursor.close()
-        self.bot.sendMessage(self.chatId(update), "Спасибо за оценку!", reply_markup=self.main_keyboard)
-        return ConversationHandler.END
+            self.bot.sendMessage(self.chatId(update), "Спасибо за оценку!", reply_markup=self.main_keyboard)
+            return ConversationHandler.END
 
 
     # Функции Продажи/Покупки
