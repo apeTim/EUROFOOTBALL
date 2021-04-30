@@ -9,6 +9,5 @@ class MatchFunctions:
             cursor = db_connection.cursor()
             command = '''SELECT name FROM matches WHERE match_stage = ? AND match_group_or_date = ?'''
             active_matches = cursor.execute( command, ( user_context["match_stage"], user_context["match_group_or_date"] ) ).fetchall()
-            print(active_matches)
             cursor.close()
         return active_matches

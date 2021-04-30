@@ -33,7 +33,6 @@ class BuyerFunctions(UserFunctions):
         if not needed_tickets:
             self.bot.sendMessage(self.chatId(update), "К сожалению пока нет билетов по вашим параметров", reply_markup=self.main_keyboard)
             return ConversationHandler.END
-        print(needed_tickets)
         context.user_data["needed_tickets"] = needed_tickets
         ticket = needed_tickets[0]
         if len(needed_tickets) == 1:
@@ -45,7 +44,7 @@ class BuyerFunctions(UserFunctions):
             ]
             ]
             markup = InlineKeyboardMarkup(keyboard)
-        r = self.bot.sendMessage(self.chatId(update), f'''<b>Продавец:</b> @{ticket[2]}\n<b>Рейтинг:</b> {ticket[11]}\n\n<b>Стадия:</b> {ticket[3]}\n<b>Дата/Группа:</b> {ticket[4]}\n<b>Матч:</b> {ticket[5]}\n<b>Категория билета:</b> {ticket[6]}\n<b>Кол-во билетов:</b> {ticket[7]}\n<b>Тип продажи:</b> {ticket[8]}\n<b>Цена за шт.:</b> {ticket[9]}\n\n<b>Описание:</b>\n{ticket[10]}''', reply_markup=markup, parse_mode='HTML')
+        r = self.bot.sendMessage(self.chatId(update), f'''<b>Продавец:</b> @{ticket[2]}\n<b>Степень доверия:</b> {ticket[11]}\n\n<b>Стадия:</b> {ticket[3]}\n<b>Дата/Группа:</b> {ticket[4]}\n<b>Матч:</b> {ticket[5]}\n<b>Категория билета:</b> {ticket[6]}\n<b>Кол-во билетов:</b> {ticket[7]}\n<b>Тип продажи:</b> {ticket[8]}\n<b>Цена за шт.:</b> {ticket[9]}\n\n<b>Описание:</b>\n{ticket[10]}''', reply_markup=markup, parse_mode='HTML')
         context.user_data["current_message_id"] = r.message_id
         return 6
     
@@ -68,7 +67,7 @@ class BuyerFunctions(UserFunctions):
                 ]
                 ]
             markup = InlineKeyboardMarkup(keyboard)
-            r = self.bot.sendMessage(update.callback_query.from_user.id, f'''<b>Продавец:</b> @{ticket[2]}\n<b>Рейтинг:</b> {ticket[11]}\n\n<b>Стадия:</b> {ticket[3]}\n<b>Дата/Группа:</b> {ticket[4]}\n<b>Матч:</b> {ticket[5]}\n<b>Категория билета:</b> {ticket[6]}\n<b>Кол-во билетов:</b> {ticket[7]}\n<b>Тип продажи:</b> {ticket[8]}\n<b>Цена за шт.:</b> {ticket[9]}\n\n<b>Описание:</b>\n{ticket[10]}''', reply_markup=markup, parse_mode='HTML')
+            r = self.bot.sendMessage(update.callback_query.from_user.id, f'''<b>Продавец:</b> @{ticket[2]}\n<b>Степень доверия:</b> {ticket[11]}\n\n<b>Стадия:</b> {ticket[3]}\n<b>Дата/Группа:</b> {ticket[4]}\n<b>Матч:</b> {ticket[5]}\n<b>Категория билета:</b> {ticket[6]}\n<b>Кол-во билетов:</b> {ticket[7]}\n<b>Тип продажи:</b> {ticket[8]}\n<b>Цена за шт.:</b> {ticket[9]}\n\n<b>Описание:</b>\n{ticket[10]}''', reply_markup=markup, parse_mode='HTML')
             context.user_data["current_message_id"] = r.message_id
         if action == 'back':
             ticket = context.user_data["needed_tickets"][int(ticket_id) - 1]
@@ -86,7 +85,7 @@ class BuyerFunctions(UserFunctions):
                 ]
                 ]
             markup = InlineKeyboardMarkup(keyboard)
-            r = self.bot.sendMessage(update.callback_query.from_user.id, f'''<b>Продавец:</b> @{ticket[2]}\n<b>Рейтинг:</b> {ticket[11]}\n\n<b>Стадия:</b> {ticket[3]}\n<b>Дата/Группа:</b> {ticket[4]}\n<b>Матч:</b> {ticket[5]}\n<b>Категория билета:</b> {ticket[6]}\n<b>Кол-во билетов:</b> {ticket[7]}\n<b>Тип продажи:</b> {ticket[8]}\n<b>Цена за шт.:</b> {ticket[9]}\n\n<b>Описание:</b>\n{ticket[10]}''', reply_markup=markup, parse_mode='HTML')
+            r = self.bot.sendMessage(update.callback_query.from_user.id, f'''<b>Продавец:</b> @{ticket[2]}\n<b>Степень доверия:</b> {ticket[11]}\n\n<b>Стадия:</b> {ticket[3]}\n<b>Дата/Группа:</b> {ticket[4]}\n<b>Матч:</b> {ticket[5]}\n<b>Категория билета:</b> {ticket[6]}\n<b>Кол-во билетов:</b> {ticket[7]}\n<b>Тип продажи:</b> {ticket[8]}\n<b>Цена за шт.:</b> {ticket[9]}\n\n<b>Описание:</b>\n{ticket[10]}''', reply_markup=markup, parse_mode='HTML')
             context.user_data["current_message_id"] = r.message_id
         return 6
     
@@ -109,7 +108,7 @@ class BuyerFunctions(UserFunctions):
                 ]
                 ]
             markup = InlineKeyboardMarkup(keyboard)
-            r = self.bot.sendMessage(update.callback_query.from_user.id, f'''<b>Продавец:</b> @{ticket[2]}\n<b>Рейтинг:</b> {ticket[11]}\n\n<b>Стадия:</b> {ticket[3]}\n<b>Дата/Группа:</b> {ticket[4]}\n<b>Матч:</b> {ticket[5]}\n<b>Категория билета:</b> {ticket[6]}\n<b>Кол-во билетов:</b> {ticket[7]}\n<b>Тип продажи:</b> {ticket[8]}\n<b>Цена за шт.:</b> {ticket[9]}\n\n<b>Описание:</b>\n{ticket[10]}''', reply_markup=markup, parse_mode='HTML')
+            r = self.bot.sendMessage(update.callback_query.from_user.id, f'''<b>Продавец:</b> @{ticket[2]}\n<b>Степень доверия:</b> {ticket[11]}\n\n<b>Стадия:</b> {ticket[3]}\n<b>Дата/Группа:</b> {ticket[4]}\n<b>Матч:</b> {ticket[5]}\n<b>Категория билета:</b> {ticket[6]}\n<b>Кол-во билетов:</b> {ticket[7]}\n<b>Тип продажи:</b> {ticket[8]}\n<b>Цена за шт.:</b> {ticket[9]}\n\n<b>Описание:</b>\n{ticket[10]}''', reply_markup=markup, parse_mode='HTML')
             context.user_data["current_message_id"] = r.message_id
         if action == 'back':
             ticket = context.user_data["needed_tickets"][int(ticket_id) - 1]
@@ -127,7 +126,7 @@ class BuyerFunctions(UserFunctions):
                 ]
                 ]
             markup = InlineKeyboardMarkup(keyboard)
-            r = self.bot.sendMessage(update.callback_query.from_user.id, f'''<b>Продавец:</b> @{ticket[2]}\n<b>Рейтинг:</b> {ticket[11]}\n\n<b>Стадия:</b> {ticket[3]}\n<b>Дата/Группа:</b> {ticket[4]}\n<b>Матч:</b> {ticket[5]}\n<b>Категория билета:</b> {ticket[6]}\n<b>Кол-во билетов:</b> {ticket[7]}\n<b>Тип продажи:</b> {ticket[8]}\n<b>Цена за шт.:</b> {ticket[9]}\n\n<b>Описание:</b>\n{ticket[10]}''', reply_markup=markup, parse_mode='HTML')
+            r = self.bot.sendMessage(update.callback_query.from_user.id, f'''<b>Продавец:</b> @{ticket[2]}\n<b>Степень доверия:</b> {ticket[11]}\n\n<b>Стадия:</b> {ticket[3]}\n<b>Дата/Группа:</b> {ticket[4]}\n<b>Матч:</b> {ticket[5]}\n<b>Категория билета:</b> {ticket[6]}\n<b>Кол-во билетов:</b> {ticket[7]}\n<b>Тип продажи:</b> {ticket[8]}\n<b>Цена за шт.:</b> {ticket[9]}\n\n<b>Описание:</b>\n{ticket[10]}''', reply_markup=markup, parse_mode='HTML')
             context.user_data["current_message_id"] = r.message_id
         return 1
 

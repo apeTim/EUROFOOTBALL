@@ -23,7 +23,6 @@ class TicketFunctions:
         return user_listed_tickets
     
     def user_needed_tickets(self, user_id, context):
-        print(context)
         with sqlite3.connect('bot.db') as db_connection:
             cursor = db_connection.cursor()
             if int(context["match_tickets_number"]) % 2 != 0:
@@ -34,23 +33,23 @@ class TicketFunctions:
             new_needed_tickets = []
             for ticket in needed_tickets:
                 user_id = ticket[1]
-                user_rating = self.get_users_rating(user_id)
-                ticket += (user_rating, )
+                user_trust = self.get_users_trust(user_id)
+                ticket += (user_trust, )
                 new_needed_tickets.append(ticket)
             cursor.close()
         return new_needed_tickets
     
-    def get_users_rating(self, user_id):
+    def get_users_trust(self, user_id):
         with sqlite3.connect('bot.db') as db_connection:
             cursor = db_connection.cursor()
-            command = f'''SELECT rating, rating_numbers FROM users WHERE user_id = ?'''
+            command = f'''SELECT trust, trust_numbers FROM users WHERE user_id = ?'''
             r = cursor.execute(command, (user_id, )).fetchone()
             if r[1] == 0:
-                rating = 'не определён'
+                trust = 'не определён'
             else:
-                rating = round(r[0] / r[1], 2)
+                trust = round(r[0] / r[1], 2)
             cursor.close()
-            return rating
+            return trust
 
 '''
 import sqlite3

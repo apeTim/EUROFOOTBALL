@@ -64,7 +64,7 @@ class ConversationScenarios:
             entry_points=[MessageHandler(Filters.regex('🌟Оценить пользователя'), self.user_functions.rate_user_nickname, pass_user_data=True)],
             states={
                 1: [MessageHandler(Filters.text, self.user_functions.rate_user_relationships, pass_user_data=True)],
-                2: [MessageHandler(Filters.text, self.user_functions.rate_user_rating, pass_user_data=True)],
+                2: [MessageHandler(Filters.text, self.user_functions.rate_user_trust, pass_user_data=True)],
                 3: [MessageHandler(Filters.text, self.user_functions.rate_user_end, pass_user_data=True)]
             },
             fallbacks=[MessageHandler(Filters.regex('🏠В главное меню'), self.user_functions.stop_conversation)]

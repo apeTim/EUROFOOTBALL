@@ -27,7 +27,7 @@ menu_button = [['🏠В главное меню']]
 
 tomenu_button = [['🏠В главное меню']]
 
-rating_coefs = {
+trust_coefs = {
     'Знаком лично': 2,
     'Имел дело в интернете': 1.5,
     'Знакомые имели дело': 1
@@ -53,54 +53,60 @@ class UserFunctions():
     def notDigitError(self, update):
         self.bot.sendMessage(self.chatId(update), "Вы прислали неверное число\n\nНеобходимо ввести только число без доп.символов и текста")
     
-    # Функции рейтинга
+    # Функции Степень доверияа
     def user_profile(self, update, context):
         with sqlite3.connect('bot.db') as db_connection:
             cursor = db_connection.cursor()
             command = f'''SELECT * FROM users WHERE user_id = ?'''
             r = cursor.execute(command, (update.message.chat_id,)).fetchone()
             if r[5] == 0:
-                rating = 'не определён'
+                trust = 'не определён'
             else:
-                rating = round(r[4] / r[5], 2)
-            self.bot.sendMessage(self.chatId(update), f"{r[2]} {r[3]}\n\n🌟Рейтинг: {rating}", reply_markup=self.main_keyboard)
+                trust = round(r[4] / r[5], 2)
+            self.bot.sendMessage(self.chatId(update), f"{r[2]} {r[3]}\n\n🌟Степень доверия: {trust}", reply_markup=self.main_keyboard)
             cursor.close()
     
     def rate_user_nickname(self, update, context):
+        print("Хотят оценить!")
         self.bot.sendMessage(self.chatId(update), "Введите никнем пользователя, которого хотите оценить", reply_markup=self.tomenu_keyboard)
         return 1
 
     def rate_user_relationships(self, update, context):
         if update.message.text == '🏠В главное меню':
+            print("Ошибка")
             self.bot.sendMessage(self.chatId(update), "Главное меню", reply_markup=self.main_keyboard)
             return ConversationHandler.END
         if update.message.text.replace('@', '').lower() == update.message.from_user.username.lower():
+            print("Ошибка")
             self.bot.sendMessage(self.chatId(update), "Нельзя оценить самого себя", reply_markup=self.tomenu_keyboard)
             return 1
         existing_user = self.bot_functions.check_user_in_db_by_nickname(update.message.text.replace('@', ''))
         if not existing_user:
+            print("Ошибка")
             self.bot.sendMessage(self.chatId(update), "Такого пользователя нет в нашей системе")
             return 1
         else:
-            rated_users = json.loads(existing_user[6])
-            context.user_data["rating_rated_users"] = rated_users
-            context.user_data["rating_nikcname"] = update.message.text
+            print("Никнейм введён всё ок!")
+            trusted_users = json.loads(existing_user[6])
+            context.user_data["trust_trusted_users"] = trusted_users
+            context.user_data["trust_nikcname"] = update.message.text.replace('@', '').lower()
             markup = ReplyKeyboardMarkup([['Знаком лично'], ['Имел дело в интернете'], ['Знакомые имели дело']] + back_button, resize_keyboard=True)
-            if str(self.chatId(update)) in rated_users:
+            if str(self.chatId(update)) in trusted_users:
                 self.bot.sendMessage(self.chatId(update), "В каких отношениях вы с пользователем?\n\nP.S: Вы уже оценивали данного пользователя, поэтому ваш голос будет перезаписан", reply_markup=markup)
             else:
                 self.bot.sendMessage(self.chatId(update), "В каких отношениях вы с пользователем?", reply_markup=markup)
             return 2
         
-    def rate_user_rating(self, update, context):
+    def rate_user_trust(self, update, context):
         if update.message.text == '⬅️Назад':
             self.bot.sendMessage(self.chatId(update), "Введите никнем пользователя, которого хотите оценить", reply_markup=self.tomenu_keyboard)
             return 1
-        if update.message.text not in rating_coefs:
+        if update.message.text not in trust_coefs:
+            print("Ошибка")
             self.notKeyboardShortcutError(update)
             return 1
-
-        context.user_data["rating_relations"] = update.message.text
+        print("Коэффициент принят!")
+        context.user_data["trust_relations"] = update.message.text
         self.bot.sendMessage(self.chatId(update), "Оцените пользователя от -10 до +10", reply_markup=ReplyKeyboardMarkup(back_button, resize_keyboard=True))
         return 3
     
@@ -118,23 +124,27 @@ class UserFunctions():
             return 3
         with sqlite3.connect('bot.db') as db_connection:
             cursor = db_connection.cursor()
-            if str(self.chatId(update)) in context.user_data["rating_rated_users"]:
-                prev_dict = context.user_data["rating_rated_users"]
+            print(context.user_data["trust_nikcname"])
+            if str(self.chatId(update)) in context.user_data["trust_trusted_users"]:
+                print("Оценка от существующего!")
+                prev_dict = context.user_data["trust_trusted_users"]
                 if prev_dict[str(self.chatId(update))][0] == '-':
                     delete_prev_number = "+" + prev_dict[str(self.chatId(update))][1:]
                 else:
                     delete_prev_number = "-" + prev_dict[str(self.chatId(update))][1:]
                 print("delete_prev_number", delete_prev_number)
-                calulate_addition_to_rating = str(eval(f"{delete_prev_number} {update.message.text[0] + (str(int(vote_number) * rating_coefs[context.user_data['rating_relations']]))}"))
-                if calulate_addition_to_rating[0] != '-':
-                    calulate_addition_to_rating = "+ " + calulate_addition_to_rating
-                command = f'''UPDATE users SET rating = rating {calulate_addition_to_rating}, rated_users = ? WHERE user_nickname = ?'''
-                prev_dict[str(self.chatId(update))] = update.message.text[0] + str(int(vote_number) * rating_coefs[context.user_data["rating_relations"]])
-                r = cursor.execute(command, ( json.dumps(prev_dict), context.user_data["rating_nikcname"] ) )
+                calulate_addition_to_trust = str(eval(f"{delete_prev_number} {update.message.text[0] + (str(int(vote_number) * trust_coefs[context.user_data['trust_relations']]))}"))
+                if calulate_addition_to_trust[0] != '-':
+                    calulate_addition_to_trust = "+ " + calulate_addition_to_trust
+                command = f'''UPDATE users SET trust = trust {calulate_addition_to_trust}, trusted_users = ? WHERE user_nickname = ?'''
+                prev_dict[str(self.chatId(update))] = update.message.text[0] + str(int(vote_number) * trust_coefs[context.user_data["trust_relations"]])
+                r = cursor.execute(command, ( json.dumps(prev_dict), context.user_data["trust_nikcname"] ) )
             else:
-                command = f'''UPDATE users SET rating = rating {update.message.text[0]} {str(int(vote_number) * rating_coefs[context.user_data["rating_relations"]])}, rating_numbers = rating_numbers + 1, rated_users = ? WHERE user_nickname = ?'''
-                context.user_data["rating_rated_users"][self.chatId(update)] = update.message.text
-                r = cursor.execute(command, ( json.dumps(context.user_data["rating_rated_users"]), context.user_data["rating_nikcname"] ) )
+                print("Оценка от нового!")
+                command = f'''UPDATE users SET trust = trust {update.message.text[0]} {str(int(vote_number) * trust_coefs[context.user_data["trust_relations"]])}, trust_numbers = trust_numbers + 1, trusted_users = ? WHERE user_nickname = ?'''
+                context.user_data["trust_trusted_users"][self.chatId(update)] = update.message.text[0] + str(int(vote_number) * trust_coefs[context.user_data["trust_relations"]])
+                r = cursor.execute(command, ( json.dumps(context.user_data["trust_trusted_users"]), context.user_data["trust_nikcname"] ) )
+            print("Успешно засчитали!")
             db_connection.commit()
             cursor.close()
             self.bot.sendMessage(self.chatId(update), "Спасибо за оценку!", reply_markup=self.main_keyboard)

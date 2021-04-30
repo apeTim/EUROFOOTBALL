@@ -6,8 +6,8 @@ from classes.UserFunctionsFile import UserFunctions
 from classes.ConversationScenariosFile import ConversationScenarios
 
 def main():
-    updater = Updater('1503161381:AAE30ZfwTRXeQvbuEV2EueTNgd7NYNn-rJw', use_context=True)
-    bot = Bot('1503161381:AAE30ZfwTRXeQvbuEV2EueTNgd7NYNn-rJw')
+    updater = Updater('1503161381:AAF4EJ3GadhkiovGrlRtTwLRhv2_D7qhbgQ', use_context=True)
+    bot = Bot('1503161381:AAF4EJ3GadhkiovGrlRtTwLRhv2_D7qhbgQ')
     dp = updater.dispatcher
 
     conversation_scenario = ConversationScenarios(bot)

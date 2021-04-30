@@ -15,7 +15,6 @@ class SellerFunctions(UserFunctions):
         self.bot = bot
         self.match_functions = MatchFunctions()
         self.ticket_functions = TicketFunctions()
-        print('UserFunctions connected')
 
     # Функции Класса
     def match_tickets_sell_type(self, update, context):
@@ -85,10 +84,8 @@ class SellerFunctions(UserFunctions):
             return 9
 
     def send_user_listed_tickets(self, update, context):
-        print(context)
         listed_tickets = self.ticket_functions.user_listed_tickets(update.message.chat_id)
         if not listed_tickets:
-            print("Вы пока не выставили на продажу ни одного билета!")
             return ConversationHandler.END
         context.user_data["listed_tickets"] = listed_tickets
         ticket = listed_tickets[0]
@@ -101,7 +98,6 @@ class SellerFunctions(UserFunctions):
             ]
             ]
             markup = InlineKeyboardMarkup(keyboard)
-        print(ticket)
         r = self.bot.sendMessage(self.chatId(update), f'''<b>Стадия:</b> {ticket[3]}\n<b>Дата/Группа:</b> {ticket[4]}\n<b>Матч:</b> {ticket[5]}\n<b>Категория билета:</b> {ticket[6]}\n<b>Кол-во билетов:</b> {ticket[7]}\n<b>Тип продажи:</b> {ticket[8]}\n<b>Цена за шт.:</b> {ticket[9]}\n\n<b>Описание:</b>\n{ticket[10]}''', reply_markup=markup, parse_mode='HTML')
         context.user_data["current_message_id"] = r.message_id
         return 1
