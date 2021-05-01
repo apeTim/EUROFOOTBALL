@@ -1,4 +1,5 @@
 import sqlite3
+import json
 
 class TicketFunctions:
     def __init__(self):
@@ -8,7 +9,7 @@ class TicketFunctions:
         with sqlite3.connect('bot.db') as db_connection:
             pass_data = (user_id, user_nickname, data["match_stage"], data["match_group_or_date"], data["match_name"], data["match_ticket_class"], data["match_tickets_number"], data["match_tickets_sell_type"], data["match_ticket_price"], data["match_ticket_description"] )
             cursor = db_connection.cursor()
-            command = f'''INSERT INTO tickets (user_id, user_nickname, match_stage, match_group_or_date, match_name, match_ticket_class, match_tickets_number, match_tickets_sell_type, match_ticket_price, match_ticket_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
+            command = f'''INSERT INTO tickets (user_id, user_nickname, match_stage, match_group_or_date, match_name, match_ticket_class, match_tickets_number, match_tickets_sell_type, match_ticket_price, match_ticket_description, ticket_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "Актуальное")'''
             cursor.execute( command, pass_data )
             db_connection.commit()
             cursor.close()
@@ -31,46 +32,48 @@ class TicketFunctions:
                 command = f'''SELECT * FROM tickets WHERE match_name = ? AND match_ticket_class = ? AND match_tickets_number >= ?'''
             needed_tickets = cursor.execute( command, (context["match_name"], context["match_ticket_class"], context["match_tickets_number"] ) ).fetchall()
             new_needed_tickets = []
+            all_users = self.get_all_users()
             for ticket in needed_tickets:
                 user_id = ticket[1]
-                user_trust = self.get_users_trust(user_id)
-                ticket += (user_trust, )
+                needed_user = all_users[user_id]
+                if needed_user[5] == 0:
+                    user_trust = 'не определён'
+                else:
+                    user_trust = round(needed_user[4] / needed_user[5], 2)
+                user_rating, users_who_trusted = [needed_user[7], json.loads(needed_user[6])]
+                new_users_who_trusted = []
+                for user in users_who_trusted:
+                    current_user_data = all_users[int(user)]
+                    if current_user_data[5] == 0:
+                        current_user_trust = 0
+                    else:
+                        current_user_trust = round(current_user_data[4] / current_user_data[5], 2)
+                    new_users_who_trusted.append((users_who_trusted[user], current_user_trust, current_user_data[1]))
+                print(new_users_who_trusted)
+                ticket += (user_trust, user_rating, sorted(new_users_who_trusted, key=lambda x: -x[1]))
                 new_needed_tickets.append(ticket)
             cursor.close()
         return new_needed_tickets
     
-    def get_users_trust(self, user_id):
+    def get_all_users(self):
         with sqlite3.connect('bot.db') as db_connection:
             cursor = db_connection.cursor()
-            command = f'''SELECT trust, trust_numbers FROM users WHERE user_id = ?'''
+            command = f'''SELECT * FROM users'''
+            r = cursor.execute(command).fetchall()
+            all_users = {}
+            for user in r:
+                all_users[int(user[0])] = user
+            cursor.close()
+            return all_users
+    
+    def get_users_trust_and_rating(self, user_id):
+        with sqlite3.connect('bot.db') as db_connection:
+            cursor = db_connection.cursor()
+            command = f'''SELECT trust, trust_numbers, rating FROM users WHERE user_id = ?'''
             r = cursor.execute(command, (user_id, )).fetchone()
             if r[1] == 0:
                 trust = 'не определён'
             else:
                 trust = round(r[0] / r[1], 2)
             cursor.close()
-            return trust
-
-'''
-import sqlite3
-
-class TicketFunctions:
-    def __init__(self):
-        pass
-
-    def create_ticket(self, data, user_id, user_nickname):
-        with sqlite3.connect('bot.db') as db_connection:
-            d = ('1742751627', 'tim_vetkin', '1/4 финала', '03.07.21', 'Победитель 1/8 финала 8- Победитель 1/8 финала 7, Рим', 'VIP', '9', '9', '9', '9')
-            cursor = db_connection.cursor()
-            command = f""INSERT INTO tickets(user_id, user_nickname, match_stage, match_group_or_date, match_name, match_ticket_class, match_tickets_number, match_min_tickets_number, match_ticket_price, match_ticket_description, ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""
-            pass_data = ( str(user_id), user_nickname, data["match_stage"], data["match_group_or_date"], data["match_name"], data["match_ticket_class"], data["match_tickets_number"], data["match_min_tickets_number"], data["match_ticket_price"], data["match_ticket_description"] )
-            print(pass_data)
-            cursor.execute( command, pass_data )
-            db_connection.commit()
-            cursor.close()
-
-b = TicketFunctions()
-b.cre
-
-
-'''
+            return (trust, r[2], json.loads(r[6]))

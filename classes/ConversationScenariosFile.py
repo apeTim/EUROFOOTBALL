@@ -6,6 +6,7 @@ from .BotMainFunctionsFile import BotMainFunctions
 from .TicketFunctionsFile import TicketFunctions
 from .BuyerFunctionsFile import BuyerFunctions
 from .UserFunctionsFile import UserFunctions
+from .AdminFunctionsFile import AdminFunctions
 
 class ConversationScenarios:
     def __init__(self, bot):
@@ -15,6 +16,7 @@ class ConversationScenarios:
         self.buyer_functions = BuyerFunctions(bot)
         self.bot_functions = BotMainFunctions()
         self.ticket_functions = TicketFunctions()
+        self.admin_functions = AdminFunctions(bot)
      
     def seller_conversation_scenario(self):
         seller_conversation_scenario = ConversationHandler(
@@ -59,14 +61,35 @@ class ConversationScenarios:
         )
         return user_listings_scenario
 
-    def rate_user_scenario(self):
-        rate_user_scenario = ConversationHandler(
-            entry_points=[MessageHandler(Filters.regex('🌟Оценить пользователя'), self.user_functions.rate_user_nickname, pass_user_data=True)],
+    def trust_user_scenario(self):
+        trust_user_scenario = ConversationHandler(
+            entry_points=[MessageHandler(Filters.regex('🌟Оценить пользователя'), self.user_functions.trust_user_nickname, pass_user_data=True)],
             states={
-                1: [MessageHandler(Filters.text, self.user_functions.rate_user_relationships, pass_user_data=True)],
-                2: [MessageHandler(Filters.text, self.user_functions.rate_user_trust, pass_user_data=True)],
-                3: [MessageHandler(Filters.text, self.user_functions.rate_user_end, pass_user_data=True)]
+                1: [MessageHandler(Filters.text, self.user_functions.trust_user_relationships, pass_user_data=True)],
+                2: [MessageHandler(Filters.text, self.user_functions.trust_user_trust, pass_user_data=True)],
+                3: [MessageHandler(Filters.text, self.user_functions.trust_user_end, pass_user_data=True)]
             },
             fallbacks=[MessageHandler(Filters.regex('🏠В главное меню'), self.user_functions.stop_conversation)]
         )
-        return rate_user_scenario
+        return trust_user_scenario
+    
+    def user_profile_scenario(self):
+        user_profile_scenario = ConversationHandler(
+            entry_points=[MessageHandler(Filters.regex("👤Мой профиль"), self.user_functions.user_profile)],
+            states={
+                1: [MessageHandler(Filters.text, self.user_functions.choose_profile_action, pass_user_data=True)],
+                2: [MessageHandler(Filters.photo, self.user_functions.picture_sent, pass_user_data=True)],
+            },
+            fallbacks=[MessageHandler(Filters.regex('🏠В главное меню'), self.user_functions.stop_conversation)]
+        )
+        return user_profile_scenario
+    
+    def admin_verification_scenario(self):
+        admin_verification_scenario = ConversationHandler(
+            entry_points=[CommandHandler("admin_vrf", self.admin_functions.verificate_users, pass_user_data=True)],
+            states={
+                1: [CallbackQueryHandler(self.admin_functions.switcher_verificate_users, pass_user_data=True)],
+            },
+            fallbacks=[CommandHandler("opop", self.admin_functions.verificate_users)]
+        )
+        return admin_verification_scenario

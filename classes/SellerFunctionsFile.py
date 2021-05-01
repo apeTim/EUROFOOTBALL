@@ -66,7 +66,7 @@ class SellerFunctions(UserFunctions):
             return 7
         context.user_data['match_ticket_description'] = update.message.text
         markup = ReplyKeyboardMarkup([['Подтвердить']] + back_button, one_time_keyboard=False, resize_keyboard=True)
-        ticket_review = f'''Стадия: {context.user_data["match_stage"]}\nДата/Группа: {context.user_data["match_group_or_date"]}\nКатегория: {context.user_data["match_ticket_class"]}\nВ наличии: {context.user_data["match_tickets_number"]}\nТип продажи: {context.user_data["match_tickets_sell_type"]}\nЦена за шт.: {context.user_data["match_ticket_price"]}'''
+        ticket_review = f'''Стадия: {context.user_data["match_stage"]}\nДата/Группа: {context.user_data["match_group_or_date"]}\nКатегория: {context.user_data["match_ticket_class"]}\nМатч: {context.user_data["match_name"]}\nВ наличии: {context.user_data["match_tickets_number"]}\nТип продажи: {context.user_data["match_tickets_sell_type"]}\nЦена за шт.: {context.user_data["match_ticket_price"]}\n\nОписание:\n{context.user_data["match_ticket_description"]}'''
         self.bot.sendMessage(self.chatId(update), ticket_review, reply_markup=markup)
         return 9
 
@@ -94,7 +94,7 @@ class SellerFunctions(UserFunctions):
         else:
             keyboard = [
             [
-                InlineKeyboardButton("Вперёд", callback_data='forward:0'),
+                InlineKeyboardButton("➡️Вперёд", callback_data='forward:1'),
             ]
             ]
             markup = InlineKeyboardMarkup(keyboard)
@@ -106,36 +106,36 @@ class SellerFunctions(UserFunctions):
         action, ticket_id = update.callback_query.data.split(':')
         self.bot.deleteMessage(update.callback_query.from_user.id, update.callback_query.message.message_id)
         if action == 'forward':
-            ticket = context.user_data["listed_tickets"][int(ticket_id) + 1]
-            if int(ticket_id) + 1 == len(context.user_data["listed_tickets"]) - 1:
+            ticket = context.user_data["listed_tickets"][int(ticket_id)]
+            if int(ticket_id) + 1 == len(context.user_data["listed_tickets"]):
                 keyboard = [
                 [
-                    InlineKeyboardButton("⬅️Назад", callback_data=f'back:{int(ticket_id) + 1}'),
-                ]
-                ]
-            else:
-                keyboard = [
-                [
-                    InlineKeyboardButton("⬅️Назад", callback_data=f'back:{int(ticket_id) + 1}'),
-                    InlineKeyboardButton("Вперёд", callback_data=f'forward:{int(ticket_id) + 1}'),
-                ]
-                ]
-            markup = InlineKeyboardMarkup(keyboard)
-            r = self.bot.sendMessage(update.callback_query.from_user.id, f'''<b>Стадия:</b> {ticket[3]}\n<b>Дата/Группа:</b> {ticket[4]}\n<b>Матч:</b> {ticket[5]}\n<b>Категория билета:</b> {ticket[6]}\n<b>Кол-во билетов:</b> {ticket[7]}\n<b>Тип продажи:</b> {ticket[8]}\n<b>Цена за шт.:</b> {ticket[9]}\n\n<b>Описание:</b>\n{ticket[10]}''', reply_markup=markup, parse_mode='HTML')
-            context.user_data["current_message_id"] = r.message_id
-        if action == 'back':
-            ticket = context.user_data["listed_tickets"][int(ticket_id) - 1]
-            if int(ticket_id) - 1 == 0:
-                keyboard = [
-                [
-                    InlineKeyboardButton("Вперёд", callback_data=f'forward:{int(ticket_id) - 1}'),
+                    InlineKeyboardButton("⬅️Назад", callback_data=f'back:{int(ticket_id) - 1}'),
                 ]
                 ]
             else:
                 keyboard = [
                 [
                     InlineKeyboardButton("⬅️Назад", callback_data=f'back:{int(ticket_id) - 1}'),
-                    InlineKeyboardButton("Вперёд", callback_data=f'forward:{int(ticket_id) - 1}'),
+                    InlineKeyboardButton("➡️Вперёд", callback_data=f'forward:{int(ticket_id) + 1}'),
+                ]
+                ]
+            markup = InlineKeyboardMarkup(keyboard)
+            r = self.bot.sendMessage(update.callback_query.from_user.id, f'''<b>Стадия:</b> {ticket[3]}\n<b>Дата/Группа:</b> {ticket[4]}\n<b>Матч:</b> {ticket[5]}\n<b>Категория билета:</b> {ticket[6]}\n<b>Кол-во билетов:</b> {ticket[7]}\n<b>Тип продажи:</b> {ticket[8]}\n<b>Цена за шт.:</b> {ticket[9]}\n\n<b>Описание:</b>\n{ticket[10]}''', reply_markup=markup, parse_mode='HTML')
+            context.user_data["current_message_id"] = r.message_id
+        if action == 'back':
+            ticket = context.user_data["listed_tickets"][int(ticket_id)]
+            if int(ticket_id) == 0:
+                keyboard = [
+                [
+                    InlineKeyboardButton("➡️Вперёд", callback_data=f'forward:{int(ticket_id) + 1}'),
+                ]
+                ]
+            else:
+                keyboard = [
+                [
+                    InlineKeyboardButton("⬅️Назад", callback_data=f'back:{int(ticket_id) - 1}'),
+                    InlineKeyboardButton("➡️Вперёд", callback_data=f'forward:{int(ticket_id) + 1}'),
                 ]
                 ]
             markup = InlineKeyboardMarkup(keyboard)

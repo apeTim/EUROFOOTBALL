@@ -54,6 +54,14 @@ class UserFunctions():
         self.bot.sendMessage(self.chatId(update), "Вы прислали неверное число\n\nНеобходимо ввести только число без доп.символов и текста")
     
     # Функции Степень доверияа
+    def get_verification_status(self, user_id):
+        with sqlite3.connect('bot.db') as db_connection:
+            cursor = db_connection.cursor()
+            command = '''SELECT verification_status FROM users WHERE user_id = ?'''
+            verification_status = cursor.execute(command, (user_id, )).fetchone()[0]
+            cursor.close()
+        return verification_status
+
     def user_profile(self, update, context):
         with sqlite3.connect('bot.db') as db_connection:
             cursor = db_connection.cursor()
@@ -63,17 +71,51 @@ class UserFunctions():
                 trust = 'не определён'
             else:
                 trust = round(r[4] / r[5], 2)
-            self.bot.sendMessage(self.chatId(update), f"{r[2]} {r[3]}\n\n🌟Степень доверия: {trust}", reply_markup=self.main_keyboard)
+            markup = ReplyKeyboardMarkup([["🛂Пройти верификацию"], ["🏠В главное меню"]], resize_keyboard=True)
+            self.bot.sendMessage(self.chatId(update), f"{r[2]} {r[3]}\n\n🌟Степень доверия: {trust}\n🌟Рейтинг: {r[7]}", reply_markup=markup)
             cursor.close()
+        return 1
     
-    def rate_user_nickname(self, update, context):
+    def choose_profile_action(self, update, context):
+        if update.message.text == '🛂Пройти верификацию':
+            verification_status = self.get_verification_status(self.chatId(update))
+            print(verification_status)
+            if verification_status == 'VERIFICATED':
+                markup = ReplyKeyboardMarkup([["🛂Пройти верификацию"], ["🏠В главное меню"]], resize_keyboard=True)
+                self.bot.sendMessage(self.chatId(update), f"Ваш профиль верифицирован!", reply_markup=markup)
+                return 1
+            self.bot.sendMessage(self.chatId(update), f"Для прохождения верификации просим Вас предоставить фотографию, на которой Вы держите Ваш паспорт в руках рядом с Вашим лицом на фоне переписки со мной(Bot Fedor). Все данные паспорта, текст переписки, а также Ваше лицо должны быть четко видны. В противном случае фотография не будет принята к верификации.", reply_markup=self.tomenu_keyboard)
+            return 2
+        elif update.message.text == '🏠В главное меню':
+            self.bot.sendMessage(self.chatId(update), "Главное меню", reply_markup=self.main_keyboard)
+            return ConversationHandler.END
+    
+    def picture_sent(self, update, context):
+        print("Здесь!")
+        file_id = update.message.photo[0].file_id
+        newFile = self.bot.getFile(file_id)
+        newFileLink = newFile.file_path
+        self.save_verification_request(newFileLink, self.chatId(update))
+        markup = ReplyKeyboardMarkup([["🛂Пройти верификацию"], ["🏠В главное меню"]], resize_keyboard=True)
+        self.bot.sendMessage(self.chatId(update), "Заявка на верификацию отправлена", reply_markup=markup)
+        return 1
+    
+    def save_verification_request(self, file_link, user_id):
+        with sqlite3.connect('bot.db') as db_connection:
+            cursor = db_connection.cursor()
+            command = command = f'''UPDATE users SET verification_link = ?, verification_status = "WAITING" WHERE user_id = ?'''
+            cursor.execute(command, (file_link, user_id))
+            db_connection.commit()
+            cursor.close()
+
+    
+    def trust_user_nickname(self, update, context):
         print("Хотят оценить!")
         self.bot.sendMessage(self.chatId(update), "Введите никнем пользователя, которого хотите оценить", reply_markup=self.tomenu_keyboard)
         return 1
 
-    def rate_user_relationships(self, update, context):
+    def trust_user_relationships(self, update, context):
         if update.message.text == '🏠В главное меню':
-            print("Ошибка")
             self.bot.sendMessage(self.chatId(update), "Главное меню", reply_markup=self.main_keyboard)
             return ConversationHandler.END
         if update.message.text.replace('@', '').lower() == update.message.from_user.username.lower():
@@ -97,7 +139,7 @@ class UserFunctions():
                 self.bot.sendMessage(self.chatId(update), "В каких отношениях вы с пользователем?", reply_markup=markup)
             return 2
         
-    def rate_user_trust(self, update, context):
+    def trust_user_trust(self, update, context):
         if update.message.text == '⬅️Назад':
             self.bot.sendMessage(self.chatId(update), "Введите никнем пользователя, которого хотите оценить", reply_markup=self.tomenu_keyboard)
             return 1
@@ -110,7 +152,7 @@ class UserFunctions():
         self.bot.sendMessage(self.chatId(update), "Оцените пользователя от -10 до +10", reply_markup=ReplyKeyboardMarkup(back_button, resize_keyboard=True))
         return 3
     
-    def rate_user_end(self, update, context):
+    def trust_user_end(self, update, context):
         vote_number = update.message.text.replace('+', '').replace('-', '')
         if update.message.text == '⬅️Назад':
             markup = ReplyKeyboardMarkup([['Знаком лично'], ['Имел дело в интернете'], ['Знакомые имели дело']] + back_button, resize_keyboard=True)
