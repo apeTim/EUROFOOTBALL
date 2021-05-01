@@ -13,7 +13,7 @@ class AdminFunctions:
     def action_verificate(self, user_id):
         with sqlite3.connect('bot.db') as db_connection:
             cursor = db_connection.cursor()
-            command = '''UPDATE users SET rating = rating + 50, verification_status = "VERIFICATED" WHERE user_id = ?'''
+            command = '''UPDATE users SET verification_status = "VERIFICATED" WHERE user_id = ?'''
             cursor.execute(command, (user_id, ))
             db_connection.commit()
     

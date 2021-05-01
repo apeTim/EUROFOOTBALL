@@ -5,11 +5,11 @@ class TicketFunctions:
     def __init__(self):
         pass
 
-    def create_ticket(self, data, user_id, user_nickname):
+    def create_ticket(self, data, user_id, user_nickname, user_fullname):
         with sqlite3.connect('bot.db') as db_connection:
-            pass_data = (user_id, user_nickname, data["match_stage"], data["match_group_or_date"], data["match_name"], data["match_ticket_class"], data["match_tickets_number"], data["match_tickets_sell_type"], data["match_ticket_price"], data["match_ticket_description"] )
+            pass_data = (user_id, user_nickname, user_fullname, data["match_stage"], data["match_group_or_date"], data["match_name"], data["match_ticket_class"], data["match_tickets_number"], data["match_tickets_sell_type"], data["match_ticket_price"], data["match_ticket_description"] )
             cursor = db_connection.cursor()
-            command = f'''INSERT INTO tickets (user_id, user_nickname, match_stage, match_group_or_date, match_name, match_ticket_class, match_tickets_number, match_tickets_sell_type, match_ticket_price, match_ticket_description, ticket_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "Актуальное")'''
+            command = f'''INSERT INTO tickets (user_id, user_nickname, user_fullname, match_stage, match_group_or_date, match_name, match_ticket_class, match_tickets_number, match_tickets_sell_type, match_ticket_price, match_ticket_description, ticket_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "Актуальное")'''
             cursor.execute( command, pass_data )
             db_connection.commit()
             cursor.close()
@@ -40,7 +40,7 @@ class TicketFunctions:
                     user_trust = 'не определён'
                 else:
                     user_trust = round(needed_user[4] / needed_user[5], 2)
-                user_rating, users_who_trusted = [needed_user[7], json.loads(needed_user[6])]
+                user_verificated, users_who_trusted = [needed_user[9], json.loads(needed_user[6])]
                 new_users_who_trusted = []
                 for user in users_who_trusted:
                     current_user_data = all_users[int(user)]
@@ -48,9 +48,12 @@ class TicketFunctions:
                         current_user_trust = 0
                     else:
                         current_user_trust = round(current_user_data[4] / current_user_data[5], 2)
-                    new_users_who_trusted.append((users_who_trusted[user], current_user_trust, current_user_data[1]))
-                print(new_users_who_trusted)
-                ticket += (user_trust, user_rating, sorted(new_users_who_trusted, key=lambda x: -x[1]))
+                    new_users_who_trusted.append((users_who_trusted[user], current_user_trust, current_user_data[2] + current_user_data[3], user))
+                if user_verificated == 'VERIFICATED':
+                    user_verificated = 'Пройдена'
+                else:
+                    user_verificated = 'Не пройдена'
+                ticket += (user_trust, user_verificated, sorted(new_users_who_trusted, key=lambda x: -x[1]))
                 new_needed_tickets.append(ticket)
             cursor.close()
         return new_needed_tickets

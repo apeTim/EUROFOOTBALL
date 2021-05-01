@@ -18,8 +18,12 @@ class BotMainFunctions:
             if self.check_user_in_db_by_id(update, context):
                  update.message.reply_text("Привет! Я создан, чтобы облегчить покупку/продажу билетов на Евро2020", reply_markup=self.main_keyboard)
                  return
-            command = '''INSERT INTO users (user_id, user_nickname, user_firstname, user_lastname, trust, trust_numbers, trusted_users, rating) VALUES (?, ?, ?, ?, 0, 0, "{}", 0)'''
-            cursor.execute(command, (update.message.chat_id, update.message.from_user.username.lower(), update.message.from_user.first_name, update.message.from_user.last_name))
+            command = '''INSERT INTO users (user_id, user_nickname, user_firstname, user_lastname, trust, trust_numbers, trusted_users, verification_status) VALUES (?, ?, ?, ?, 0, 0, "{}", "NONE")'''
+            if not update.message.from_user.username:
+                username = 'none'
+            else:
+                username = update.message.from_user.username.lower()
+            cursor.execute(command, (update.message.chat_id, username, update.message.from_user.first_name, update.message.from_user.last_name))
             db_connection.commit()
             update.message.reply_text("Привет! Я создан, чтобы облегчить покупку/продажу билетов на Евро2020", reply_markup=self.main_keyboard)
             cursor.close()

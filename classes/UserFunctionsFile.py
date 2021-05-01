@@ -53,7 +53,7 @@ class UserFunctions():
     def notDigitError(self, update):
         self.bot.sendMessage(self.chatId(update), "Вы прислали неверное число\n\nНеобходимо ввести только число без доп.символов и текста")
     
-    # Функции Степень доверияа
+    # Функции Степень доверия
     def get_verification_status(self, user_id):
         with sqlite3.connect('bot.db') as db_connection:
             cursor = db_connection.cursor()
@@ -72,7 +72,11 @@ class UserFunctions():
             else:
                 trust = round(r[4] / r[5], 2)
             markup = ReplyKeyboardMarkup([["🛂Пройти верификацию"], ["🏠В главное меню"]], resize_keyboard=True)
-            self.bot.sendMessage(self.chatId(update), f"{r[2]} {r[3]}\n\n🌟Степень доверия: {trust}\n🌟Рейтинг: {r[7]}", reply_markup=markup)
+            if r[7] == 'VERIFICATED':
+                verificaion_status = 'Пройдена'
+            else:
+                verificaion_status = 'Не пройдена'
+            self.bot.sendMessage(self.chatId(update), f"{r[2]} {r[3]}\n\n🌟Степень доверия: {trust}\n🌟Верификация: {verificaion_status}", reply_markup=markup)
             cursor.close()
         return 1
     
