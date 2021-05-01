@@ -18,8 +18,9 @@ def main():
     dp.add_handler(conversation_scenario.user_listings_scenario())
     dp.add_handler(conversation_scenario.seller_conversation_scenario())
     dp.add_handler(conversation_scenario.buyer_conversation_scenario())
-    dp.add_handler(conversation_scenario.rate_user_scenario())
-    dp.add_handler(MessageHandler(Filters.regex("👤Мой профиль"), user_functions.user_profile))
+    dp.add_handler(conversation_scenario.trust_user_scenario())
+    dp.add_handler(conversation_scenario.user_profile_scenario())
+    dp.add_handler(conversation_scenario.admin_verification_scenario())
     dp.add_handler(MessageHandler(Filters.regex("✉️Тех-поддержка"), bot_functions.send_contacts))
 
     updater.start_polling()
