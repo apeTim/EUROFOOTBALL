@@ -51,7 +51,7 @@ class BuyerFunctions(UserFunctions):
             ], [InlineKeyboardButton("🗑️Отметить как неактуальное", callback_data='expired:0')]
             ]
             markup = InlineKeyboardMarkup(keyboard)
-            users_who_trusted = "(" + '\n'.join(list(map(lambda x: f"{x[0]} | {x[1]} | @{x[2]}", ticket[15]))) + ")"
+        users_who_trusted = "(" + '\n'.join(list(map(lambda x: f"{x[0]} | {x[1]} | @{x[2]}", ticket[15]))) + ")"
         r = self.bot.sendMessage(self.chatId(update), f'''{status_emoji[ticket[11]]}<b>Статутс объявления:</b> {ticket[11]}\n\n<b>Продавец:</b> @{ticket[2]}\n<b>Степень доверия:</b> {ticket[13]}\n{users_who_trusted}\n<b>Рейтинг:</b> {ticket[14]}\n<b>Стадия:</b> {ticket[3]}\n<b>Дата/Группа:</b> {ticket[4]}\n<b>Матч:</b> {ticket[5]}\n<b>Категория билета:</b> {ticket[6]}\n<b>Кол-во билетов:</b> {ticket[7]}\n<b>Тип продажи:</b> {ticket[8]}\n<b>Цена за шт.:</b> {ticket[9]}\n\n<b>Описание:</b>\n{ticket[10]}''', reply_markup=markup, parse_mode='HTML')
         context.user_data["current_message_id"] = r.message_id
         return 6
