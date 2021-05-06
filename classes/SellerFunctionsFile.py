@@ -76,7 +76,7 @@ class SellerFunctions(UserFunctions):
             self.bot.sendMessage(self.chatId(update), "В объявлении укажите информацию о предложении. Желательно указать:\n-бумажный или электронный билет;\n-готовность встретится лично;\n-готовность к торгу;\n-форма оплаты(нал/бн/крипта);", reply_markup=markup)
             return 8
         if update.message.text == 'Подтвердить':
-            result = self.ticket_functions.create_ticket(context.user_data, update.message.chat_id, str(update.message.from_user.username), update.message.from_user.first_name + ' ' + update.message.from_user.last_name )
+            result = self.ticket_functions.create_ticket(context.user_data, update.message.chat_id, update.message.from_user.first_name + ' ' + update.message.from_user.last_name )
             self.bot.sendMessage(self.chatId(update), "Объявление создано", reply_markup=self.main_keyboard)
             return ConversationHandler.END
         else:

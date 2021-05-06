@@ -5,11 +5,11 @@ class TicketFunctions:
     def __init__(self):
         pass
 
-    def create_ticket(self, data, user_id, user_nickname, user_fullname):
+    def create_ticket(self, data, user_id, user_fullname):
         with sqlite3.connect('bot.db') as db_connection:
-            pass_data = (user_id, user_nickname, user_fullname, data["match_stage"], data["match_group_or_date"], data["match_name"], data["match_ticket_class"], data["match_tickets_number"], data["match_tickets_sell_type"], data["match_ticket_price"], data["match_ticket_description"] )
+            pass_data = (user_id, user_fullname, data["match_stage"], data["match_group_or_date"], data["match_name"], data["match_ticket_class"], data["match_tickets_number"], data["match_tickets_sell_type"], data["match_ticket_price"], data["match_ticket_description"] )
             cursor = db_connection.cursor()
-            command = f'''INSERT INTO tickets (user_id, user_nickname, user_fullname, match_stage, match_group_or_date, match_name, match_ticket_class, match_tickets_number, match_tickets_sell_type, match_ticket_price, match_ticket_description, ticket_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "Актуальное")'''
+            command = f'''INSERT INTO tickets (user_id, user_fullname, match_stage, match_group_or_date, match_name, match_ticket_class, match_tickets_number, match_tickets_sell_type, match_ticket_price, match_ticket_description, ticket_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "Актуальное")'''
             cursor.execute( command, pass_data )
             db_connection.commit()
             cursor.close()
