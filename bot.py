@@ -10,10 +10,6 @@ def main():
     updater = Updater('1503161381:AAF4EJ3GadhkiovGrlRtTwLRhv2_D7qhbgQ', use_context=True)
     bot = Bot('1503161381:AAF4EJ3GadhkiovGrlRtTwLRhv2_D7qhbgQ')
     dp = updater.dispatcher
-    with sqlite3.connect('bot.db') as db_connection:
-        cursor = db_connection.cursor()
-        cursor.execute('''ALTER TABLE tickets ADD user_fullname TEXT''')
-        db_connection.commit()
 
     conversation_scenario = ConversationScenarios(bot)
     bot_functions = BotMainFunctions()

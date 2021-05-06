@@ -56,6 +56,9 @@ class ConversationScenarios:
             entry_points=[MessageHandler(Filters.regex('📜Мои объявления'), self.seller_functions.send_user_listed_tickets, pass_user_data=True)],
             states={
                 1: [CallbackQueryHandler(self.seller_functions.switcher_user_listed_tickets, pass_user_data=True)],
+                2: [CallbackQueryHandler(self.seller_functions.edit_message_chooser, pass_user_data=True)],
+                3: [MessageHandler(Filters.text, self.seller_functions.edit_message, pass_user_data=True)],
+
             },
             fallbacks=[MessageHandler(Filters.text, self.seller_functions.stop_callback_conversation)]
         )

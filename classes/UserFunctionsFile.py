@@ -72,7 +72,7 @@ class UserFunctions():
             else:
                 trust = round(r[4] / r[5], 2)
             markup = ReplyKeyboardMarkup([["🛂Пройти верификацию"], ["🏠В главное меню"]], resize_keyboard=True)
-            if r[7] == 'VERIFICATED':
+            if r[9] == 'VERIFICATED':
                 verificaion_status = 'Пройдена'
             else:
                 verificaion_status = 'Не пройдена'

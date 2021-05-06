@@ -15,6 +15,24 @@ class TicketFunctions:
             cursor.close()
         return 1
     
+    def delete_ticket_by_id(self, ticket_id):
+        with sqlite3.connect('bot.db') as db_connection:
+            cursor = db_connection.cursor()
+            command = f'''DELETE FROM tickets WHERE ticket_id = ?'''
+            cursor.execute( command, (ticket_id, ) )
+            db_connection.commit()
+            cursor.close()
+        return 1
+    
+    def edit_ticket(self, ticket_id, edit_field, new_value):
+        with sqlite3.connect('bot.db') as db_connection:
+            cursor = db_connection.cursor()
+            command = f'''UPDATE tickets SET {edit_field} = ? WHERE ticket_id = ?'''
+            cursor.execute( command, (new_value, ticket_id ) )
+            db_connection.commit()
+            cursor.close()
+        return 1
+    
     def user_listed_tickets(self, user_id):
         with sqlite3.connect('bot.db') as db_connection:
             cursor = db_connection.cursor()
@@ -48,7 +66,7 @@ class TicketFunctions:
                         current_user_trust = 0
                     else:
                         current_user_trust = round(current_user_data[4] / current_user_data[5], 2)
-                    new_users_who_trusted.append((users_who_trusted[user], current_user_trust, current_user_data[2] + current_user_data[3], user))
+                    new_users_who_trusted.append((users_who_trusted[user], current_user_trust, current_user_data[2] + ' ' + current_user_data[3], user))
                 if user_verificated == 'VERIFICATED':
                     user_verificated = 'Пройдена'
                 else:
