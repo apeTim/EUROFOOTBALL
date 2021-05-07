@@ -33,12 +33,13 @@ class BuyerFunctions(UserFunctions):
         if (not update.message.text.isdigit()) or (not int(update.message.text.replace(" ", "")) > 0):
             self.notKeyboardShortcutError(update)
             return 5
-
+        
         context.user_data["match_tickets_number"] = update.message.text
         needed_tickets = self.ticket_functions.user_needed_tickets(self.chatId(update), context.user_data)
         if not needed_tickets:
             self.bot.sendMessage(self.chatId(update), "К сожалению пока нет билетов по вашим параметров", reply_markup=self.main_keyboard)
             return ConversationHandler.END
+        self.bot.sendMessage(self.chatId(update), "Текущие объявления👇", reply_markup=ReplyKeyboardMarkup(menu_button, one_time_keyboard=False, resize_keyboard=True))
         context.user_data["needed_tickets"] = [list(x) for x in needed_tickets]
         messages_ids = []
         for index, ticket in enumerate(needed_tickets):

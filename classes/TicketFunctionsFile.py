@@ -66,7 +66,15 @@ class TicketFunctions:
                         current_user_trust = 0
                     else:
                         current_user_trust = round(current_user_data[4] / current_user_data[5], 2)
-                    new_users_who_trusted.append((users_who_trusted[user], current_user_trust, current_user_data[2] + ' ' + current_user_data[3], user))
+                    user_firstname = current_user_data[2]
+                    user_lastname = current_user_data[3]
+                    if not user_firstname:
+                        user_firstname = ''
+                    if not user_lastname:
+                        user_lastname = ''
+                    if not (user_firstname + user_lastname):
+                        user_firstname = 'Имя не указано'
+                    new_users_who_trusted.append((users_who_trusted[user], current_user_trust, user_firstname + ' ' + user_lastname, user))
                 if user_verificated == 'VERIFICATED':
                     user_verificated = 'Пройдена'
                 else:
