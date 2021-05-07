@@ -15,7 +15,6 @@ def main():
     bot_functions = BotMainFunctions()
     user_functions = UserFunctions(bot)
 
-    dp.add_handler(CommandHandler("start", bot_functions.start_command))
     dp.add_handler(conversation_scenario.user_listings_scenario())
     dp.add_handler(conversation_scenario.seller_conversation_scenario())
     dp.add_handler(conversation_scenario.buyer_conversation_scenario())
@@ -23,6 +22,7 @@ def main():
     dp.add_handler(conversation_scenario.user_profile_scenario())
     dp.add_handler(conversation_scenario.admin_verification_scenario())
     dp.add_handler(MessageHandler(Filters.regex("✉️Тех-поддержка"), bot_functions.send_contacts))
+    dp.add_handler(CommandHandler("start", bot_functions.start_command))
 
     updater.start_polling()
     updater.idle()
