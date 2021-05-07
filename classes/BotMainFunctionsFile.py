@@ -43,6 +43,10 @@ class BotMainFunctions:
             command = f'''SELECT * FROM users WHERE user_nickname = ?'''
             r = cursor.execute( command, (nickname.lower(),) ).fetchone()
             return r
+    
+    def stop_conversation_with_text(self, update, context):
+        update.message.reply_text('Выход в главное меню', reply_markup=self.main_keyboard)
+        return ConversationHandler.END 
 
     def stop_conversation(self, update, context):
         return ConversationHandler.END 

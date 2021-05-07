@@ -86,10 +86,14 @@ class BuyerFunctions(UserFunctions):
         return 6
 
     def stop_callback_conversation(self, update, context):
-        for message_id in context.user_data["messages_ids"]:
-           self.bot.editMessageReplyMarkup(self.chatId(update), message_id, reply_markup=None)
-        self.bot.sendMessage(self.chatId(update), "Просмотр билетов завершён", reply_markup=self.main_keyboard)
-        return ConversationHandler.END
+        try:
+            for message_id in context.user_data["messages_ids"]:
+                self.bot.editMessageReplyMarkup(self.chatId(update), message_id, reply_markup=None)
+            self.bot.sendMessage(self.chatId(update), "Просмотр билетов завершён", reply_markup=self.main_keyboard)
+            return ConversationHandler.END
+        except Exception:
+            self.bot.sendMessage(self.chatId(update), "Выход в главное меню", reply_markup=self.main_keyboard)
+            return ConversationHandler.END
 
     def stop(self, update, context):
         return ConversationHandler.END 

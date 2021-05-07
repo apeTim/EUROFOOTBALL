@@ -64,8 +64,6 @@ class UserFunctions():
         return verification_status
 
     def user_profile(self, update, context):
-        if update.message.text == '/restart':
-            self.bot_functions.stop_conversation_with_text(update, context)
         with sqlite3.connect('bot.db') as db_connection:
             cursor = db_connection.cursor()
             command = f'''SELECT * FROM users WHERE user_id = ?'''
@@ -84,8 +82,6 @@ class UserFunctions():
         return 1
     
     def choose_profile_action(self, update, context):
-        if update.message.text == '/restart':
-            self.bot_functions.stop_conversation_with_text(update, context)
 
         if update.message.text == '🛂Пройти верификацию':
             verification_status = self.get_verification_status(self.chatId(update))
@@ -101,8 +97,6 @@ class UserFunctions():
             return ConversationHandler.END
     
     def picture_sent(self, update, context):
-        if update.message.text == '/restart':
-            self.bot_functions.stop_conversation_with_text(update, context)
         
         file_id = update.message.photo[0].file_id
         newFile = self.bot.getFile(file_id)
@@ -123,15 +117,11 @@ class UserFunctions():
 
     
     def trust_user_nickname(self, update, context):
-        if update.message.text == '/restart':
-            self.bot_functions.stop_conversation_with_text(update, context)
 
         self.bot.sendMessage(self.chatId(update), "Введите никнем пользователя, которого хотите оценить", reply_markup=self.tomenu_keyboard)
         return 1
 
     def trust_user_relationships(self, update, context):
-        if update.message.text == '/restart':
-            self.bot_functions.stop_conversation_with_text(update, context)
 
         if update.message.text == '🏠В главное меню':
             self.bot.sendMessage(self.chatId(update), "Главное меню", reply_markup=self.main_keyboard)
@@ -155,8 +145,6 @@ class UserFunctions():
             return 2
         
     def trust_user_trust(self, update, context):
-        if update.message.text == '/restart':
-            self.bot_functions.stop_conversation_with_text(update, context)
 
         if update.message.text == '⬅️Назад':
             self.bot.sendMessage(self.chatId(update), "Введите никнем пользователя, которого хотите оценить", reply_markup=self.tomenu_keyboard)
@@ -169,8 +157,6 @@ class UserFunctions():
         return 3
     
     def trust_user_end(self, update, context):
-        if update.message.text == '/restart':
-            self.bot_functions.stop_conversation_with_text(update, context)
         vote_number = update.message.text.replace('+', '').replace('-', '')
         if update.message.text == '⬅️Назад':
             markup = ReplyKeyboardMarkup([['Знаком лично'], ['Имел дело в интернете'], ['Знакомые имели дело']] + back_button, resize_keyboard=True)
@@ -213,16 +199,12 @@ class UserFunctions():
 
     # Функции Продажи/Покупки
     def choose_match_stage(self, update, context):
-        if update.message.text == '/restart':
-            self.bot_functions.stop_conversation_with_text(update, context)
         context.user_data['action'] = 'Продать'
         markup = ReplyKeyboardMarkup([[x] for x in MATCH_DATA] + tomenu_button, one_time_keyboard=False, resize_keyboard=True)
         self.bot.sendMessage(self.chatId(update), "Выберите стадию", reply_markup=markup)
         return 1
 
     def choose_match_date(self, update, context):
-        if update.message.text == '/restart':
-            self.bot_functions.stop_conversation_with_text(update, context)
         if update.message.text == '🏠В главное меню':
             self.bot.sendMessage(self.chatId(update), "Главное меню", reply_markup=self.main_keyboard)
             return ConversationHandler.END
@@ -247,8 +229,6 @@ class UserFunctions():
         return 2
 
     def choose_match_name(self, update, context):
-        if update.message.text == '/restart':
-            self.bot_functions.stop_conversation_with_text(update, context)
         if update.message.text == '⬅️Назад':
             markup = ReplyKeyboardMarkup([[x] for x in MATCH_DATA] + tomenu_button, one_time_keyboard=False, resize_keyboard=True)
             self.bot.sendMessage(self.chatId(update), "Выберите стадию", reply_markup=markup)
@@ -266,8 +246,6 @@ class UserFunctions():
         return 3
     
     def choose_match_ticket_class(self, update, context):
-        if update.message.text == '/restart':
-            self.bot_functions.stop_conversation_with_text(update, context)
         if update.message.text == '⬅️Назад':
             markup = ReplyKeyboardMarkup(MATCH_DATA[context.user_data["match_stage"]] + back_button, one_time_keyboard=False, resize_keyboard=True)
             if context.user_data["match_stage"] == 'Групповой этап':
@@ -286,8 +264,6 @@ class UserFunctions():
         return 4
 
     def choose_match_tickets_number(self, update, context):
-        if update.message.text == '/restart':
-            self.bot_functions.stop_conversation_with_text(update, context)
         if update.message.text == '⬅️Назад':
             if context.user_data['match_stage'] == 'Финал':
                 markup = ReplyKeyboardMarkup([[x] for x in MATCH_DATA] + tomenu_button, one_time_keyboard=False, resize_keyboard=True)
@@ -307,12 +283,8 @@ class UserFunctions():
         return 5
 
     def stop_conversation(self, update, context):
-        if update.message.text == '/restart':
-            self.bot_functions.stop_conversation_with_text(update, context)
         self.bot.sendMessage(self.chatId(update), "Главное меню", reply_markup=self.main_keyboard)
         return ConversationHandler.END
 
     def stop(self, update, context):
-        if update.message.text == '/restart':
-            self.bot_functions.stop_conversation_with_text(update, context)
         return ConversationHandler.END 

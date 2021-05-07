@@ -22,17 +22,17 @@ class ConversationScenarios:
         seller_conversation_scenario = ConversationHandler(
             entry_points=[MessageHandler(Filters.regex('💰Продать'), self.seller_functions.choose_match_stage)],
             states={
-                1: [MessageHandler(Filters.text, self.seller_functions.choose_match_date, pass_user_data=True)],
-                2: [MessageHandler(Filters.text, self.seller_functions.choose_match_name, pass_user_data=True)],
-                3: [MessageHandler(Filters.text, self.seller_functions.choose_match_ticket_class, pass_user_data=True)],
-                4: [MessageHandler(Filters.text, self.seller_functions.choose_match_tickets_number, pass_user_data=True)],
-                5: [MessageHandler(Filters.text, self.seller_functions.match_tickets_sell_type, pass_user_data=True)],
-                6: [MessageHandler(Filters.text, self.seller_functions.match_ticket_price, pass_user_data=True)],
-                7: [MessageHandler(Filters.text, self.seller_functions.match_ticket_description, pass_user_data=True)],
-                8: [MessageHandler(Filters.text, self.seller_functions.ticket_review, pass_user_data=True)],
-                9: [MessageHandler(Filters.text, self.seller_functions.ticket_confirm, pass_user_data=True)],
+                1: [MessageHandler(Filters.text & (~ Filters.regex('/restart')), self.seller_functions.choose_match_date, pass_user_data=True)],
+                2: [MessageHandler(Filters.text & (~ Filters.regex('/restart')), self.seller_functions.choose_match_name, pass_user_data=True)],
+                3: [MessageHandler(Filters.text & (~ Filters.regex('/restart')), self.seller_functions.choose_match_ticket_class, pass_user_data=True)],
+                4: [MessageHandler(Filters.text & (~ Filters.regex('/restart')), self.seller_functions.choose_match_tickets_number, pass_user_data=True)],
+                5: [MessageHandler(Filters.text & (~ Filters.regex('/restart')), self.seller_functions.match_tickets_sell_type, pass_user_data=True)],
+                6: [MessageHandler(Filters.text & (~ Filters.regex('/restart')), self.seller_functions.match_ticket_price, pass_user_data=True)],
+                7: [MessageHandler(Filters.text & (~ Filters.regex('/restart')), self.seller_functions.match_ticket_description, pass_user_data=True)],
+                8: [MessageHandler(Filters.text & (~ Filters.regex('/restart')), self.seller_functions.ticket_review, pass_user_data=True)],
+                9: [MessageHandler(Filters.text & (~ Filters.regex('/restart')), self.seller_functions.ticket_confirm, pass_user_data=True)],
             },
-            fallbacks=[MessageHandler(Filters.regex('🏠В главное меню'), self.bot_functions.stop_conversation)]
+            fallbacks=[MessageHandler(Filters.regex('🏠В главное меню') | Filters.regex('/restart'), self.bot_functions.stop_conversation_with_text)]
         )
         return seller_conversation_scenario
 
@@ -40,14 +40,14 @@ class ConversationScenarios:
         buyer_conversation_scenario = ConversationHandler(
             entry_points=[MessageHandler(Filters.regex('🛒Купить'), self.buyer_functions.choose_match_stage)],
             states={
-                1: [MessageHandler(Filters.text, self.buyer_functions.choose_match_date, pass_user_data=True)],
-                2: [MessageHandler(Filters.text, self.buyer_functions.choose_match_name, pass_user_data=True)],
-                3: [MessageHandler(Filters.text, self.buyer_functions.choose_match_ticket_class, pass_user_data=True)],
-                4: [MessageHandler(Filters.text, self.buyer_functions.choose_match_tickets_number, pass_user_data=True)],
-                5: [MessageHandler(Filters.text, self.buyer_functions.send_needed_tickets, pass_user_data=True)],
+                1: [MessageHandler(Filters.text & (~ Filters.regex('/restart')), self.buyer_functions.choose_match_date, pass_user_data=True)],
+                2: [MessageHandler(Filters.text & (~ Filters.regex('/restart')), self.buyer_functions.choose_match_name, pass_user_data=True)],
+                3: [MessageHandler(Filters.text & (~ Filters.regex('/restart')), self.buyer_functions.choose_match_ticket_class, pass_user_data=True)],
+                4: [MessageHandler(Filters.text & (~ Filters.regex('/restart')), self.buyer_functions.choose_match_tickets_number, pass_user_data=True)],
+                5: [MessageHandler(Filters.text & (~ Filters.regex('/restart')), self.buyer_functions.send_needed_tickets, pass_user_data=True)],
                 6: [CallbackQueryHandler(self.buyer_functions.switcher_needed_tickets)]
             },
-            fallbacks=[MessageHandler(Filters.regex('🏠В главное меню'), self.buyer_functions.stop_callback_conversation)]
+            fallbacks=[MessageHandler(Filters.regex('🏠В главное меню') | Filters.regex('/restart'), self.buyer_functions.stop_callback_conversation)]
         )
         return buyer_conversation_scenario
     
@@ -68,11 +68,11 @@ class ConversationScenarios:
         trust_user_scenario = ConversationHandler(
             entry_points=[MessageHandler(Filters.regex('🌟Оценить пользователя'), self.user_functions.trust_user_nickname, pass_user_data=True)],
             states={
-                1: [MessageHandler(Filters.text, self.user_functions.trust_user_relationships, pass_user_data=True)],
-                2: [MessageHandler(Filters.text, self.user_functions.trust_user_trust, pass_user_data=True)],
-                3: [MessageHandler(Filters.text, self.user_functions.trust_user_end, pass_user_data=True)]
+                1: [MessageHandler(Filters.text & (~ Filters.regex('/restart')), self.user_functions.trust_user_relationships, pass_user_data=True)],
+                2: [MessageHandler(Filters.text & (~ Filters.regex('/restart')), self.user_functions.trust_user_trust, pass_user_data=True)],
+                3: [MessageHandler(Filters.text & (~ Filters.regex('/restart')), self.user_functions.trust_user_end, pass_user_data=True)]
             },
-            fallbacks=[MessageHandler(Filters.regex('🏠В главное меню'), self.user_functions.stop_conversation)]
+            fallbacks=[MessageHandler(Filters.regex('🏠В главное меню') | Filters.regex('/restart'), self.bot_functions.stop_conversation_with_text)]
         )
         return trust_user_scenario
     
@@ -80,10 +80,10 @@ class ConversationScenarios:
         user_profile_scenario = ConversationHandler(
             entry_points=[MessageHandler(Filters.regex("👤Мой профиль"), self.user_functions.user_profile)],
             states={
-                1: [MessageHandler(Filters.text, self.user_functions.choose_profile_action, pass_user_data=True)],
+                1: [MessageHandler(Filters.text & (~ Filters.regex('/restart')), self.user_functions.choose_profile_action, pass_user_data=True)],
                 2: [MessageHandler(Filters.photo, self.user_functions.picture_sent, pass_user_data=True)],
             },
-            fallbacks=[MessageHandler(Filters.regex('🏠В главное меню'), self.user_functions.stop_conversation)]
+            fallbacks=[MessageHandler(Filters.regex('🏠В главное меню') | Filters.regex('/restart'), self.bot_functions.stop_conversation_with_text)]
         )
         return user_profile_scenario
     
@@ -93,6 +93,6 @@ class ConversationScenarios:
             states={
                 1: [CallbackQueryHandler(self.admin_functions.switcher_verificate_users, pass_user_data=True)],
             },
-            fallbacks=[CommandHandler("opop", self.admin_functions.verificate_users)]
+            fallbacks=[CommandHandler("exit",  self.bot_functions.stop_conversation_with_text)]
         )
         return admin_verification_scenario
